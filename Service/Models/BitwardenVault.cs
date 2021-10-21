@@ -4,7 +4,7 @@ namespace BitwardenVaultManager.Service.Models
 {
     public sealed class BitwardenVault
     {
-        public bool Encrypted { get; set; }
+        public bool IsEncrypted { get; set; }
 
         public IList<BitwardenFolder> Folders { get; set; }
 

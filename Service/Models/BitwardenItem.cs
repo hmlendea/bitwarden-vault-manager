@@ -11,5 +11,11 @@ namespace BitwardenVaultManager.Service.Models
         public BitwardenItemType Type { get; set; }
 
         public Guid FolderId { get; set; }
+
+        public bool IsFavourite { get; set; }
+
+        public string Notes { get; set; }
+
+        public BitwardenLogin Login { get; set; }
     }
 }

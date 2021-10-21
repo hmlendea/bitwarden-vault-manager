@@ -11,7 +11,7 @@ namespace BitwardenVaultManager.Service.Mapping
         internal static BitwardenVault ToServiceModel(this BitwardenVaultEntity dataObject)
         {
             BitwardenVault serviceModel = new BitwardenVault();
-            serviceModel.Encrypted = dataObject.Encrypted;
+            serviceModel.IsEncrypted = dataObject.Encrypted;
             serviceModel.Folders = dataObject.Folders.ToServiceModels().ToList();
             serviceModel.Items = dataObject.Items.ToServiceModels().ToList();
 
@@ -21,7 +21,7 @@ namespace BitwardenVaultManager.Service.Mapping
         internal static BitwardenVaultEntity ToDataObject(this BitwardenVault serviceModel)
         {
             BitwardenVaultEntity dataObject = new BitwardenVaultEntity();
-            dataObject.Encrypted = serviceModel.Encrypted;
+            dataObject.Encrypted = serviceModel.IsEncrypted;
             dataObject.Folders = serviceModel.Folders.ToDataObjects().ToList();
             dataObject.Items = serviceModel.Items.ToDataObjects().ToList();
 

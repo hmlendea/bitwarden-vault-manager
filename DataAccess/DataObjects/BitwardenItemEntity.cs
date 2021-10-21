@@ -9,5 +9,11 @@ namespace BitwardenVaultManager.DataAccess.DataObjects
         public int Type { get; set; }
 
         public string FolderId { get; set; }
+
+        public bool Favourite { get; set; }
+
+        public string Notes { get; set; }
+
+        public BitwardenLoginEntity Login { get; set; }
     }
 }

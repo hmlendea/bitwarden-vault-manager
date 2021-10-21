@@ -31,13 +31,19 @@ namespace BitwardenVaultManager.Service
 
         public void PrintItemDetails()
         {
-            BitwardenItem item = vault.Items.First(x => x.FolderId != Guid.Empty);
+            BitwardenItem item = vault.Items.First(x =>
+                x.FolderId != Guid.Empty &&
+                x.Type == BitwardenItemType.Login);
+
             BitwardenFolder folder = vault.Folders.First(x => x.Id == item.FolderId);
 
             Console.WriteLine($"Id: {item.Name}");
             Console.WriteLine($"Name: {item.Name}");
             Console.WriteLine($"Type: {item.Type}");
             Console.WriteLine($"Folder: {folder.Name}");
+            Console.WriteLine($"Username: {item.Login.Username}");
+            Console.WriteLine($"Password: {item.Login.Password}");
+            Console.WriteLine($"TOTP: {item.Login.TOTP}");
         }
     }
 }

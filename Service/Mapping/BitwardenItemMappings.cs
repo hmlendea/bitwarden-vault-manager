@@ -21,6 +21,14 @@ namespace BitwardenVaultManager.Service.Mapping
                 serviceModel.FolderId = Guid.Parse(dataObject.FolderId);
             }
 
+            serviceModel.IsFavourite = dataObject.Favourite;
+            serviceModel.Notes = dataObject.Notes;
+
+            if (dataObject.Login != null)
+            {
+                serviceModel.Login = dataObject.Login.ToServiceModel();
+            }
+
             return serviceModel;
         }
 
@@ -31,6 +39,9 @@ namespace BitwardenVaultManager.Service.Mapping
             dataObject.Type = (int)serviceModel.Type;
             dataObject.Name = serviceModel.Name;
             dataObject.FolderId = serviceModel.FolderId.ToString();
+            dataObject.Favourite = serviceModel.IsFavourite;
+            dataObject.Notes = serviceModel.Notes;
+            dataObject.Login = serviceModel.Login.ToDataObject();
 
             return dataObject;
         }
