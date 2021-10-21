@@ -5,6 +5,7 @@ using NuciCLI;
 using NuciCLI.Menus;
 
 using BitwardenVaultManager.Service;
+using BitwardenVaultManager.Service.Models;
 
 namespace BitwardenVaultManager.Menus
 {
@@ -25,6 +26,7 @@ namespace BitwardenVaultManager.Menus
             AddCommand("load", "Load a Bitwarden vault", () => LoadFile());
             AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
             AddCommand("get-email-addresses", "Gets the list of all email addresses used", () => GetEmailAddresses());
+            AddCommand("get-email-addresse-usages", "Gets the list of all the accounts that use a given email address", () => GetEmailAddresseUsages());
         }
 
         void LoadFile()
@@ -62,6 +64,24 @@ namespace BitwardenVaultManager.Menus
             foreach (string emailAddress in emailAddressUsages.Keys.OrderByDescending(x => emailAddressUsages[x]).ThenBy(x => x))
             {
                 NuciConsole.WriteLine($"{emailAddress} ({emailAddressUsages[emailAddress]} accounts)");
+            }
+        }
+
+        void GetEmailAddresseUsages()
+        {
+            string emailAddress = NuciConsole.ReadLine("Email Address: ");
+            IEnumerable<BitwardenItem> items = vaultManager.GetItemsByEmailAddress(emailAddress);
+            IList<string> results = new List<string>();
+
+            foreach (BitwardenItem item in items)
+            {
+                string folderName = vaultManager.GetFolderName(item.FolderId);
+                results.Add($"{folderName}/{item.Name}");
+            }
+
+            foreach (string result in results.OrderBy(x => x))
+            {
+                NuciConsole.WriteLine(result);
             }
         }
     }

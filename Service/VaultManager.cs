@@ -45,6 +45,11 @@ namespace BitwardenVaultManager.Service
             return errors;
         }
 
+        public string GetFolderName(Guid folderId)
+            => vault.Folders
+                .FirstOrDefault(folder => folder.Id.Equals(folderId))
+                .Name;
+
         public IEnumerable<string> GetEmailAddresses()
             => vault.Items
                 .Where(item => !string.IsNullOrWhiteSpace(item.EmailAddress))
