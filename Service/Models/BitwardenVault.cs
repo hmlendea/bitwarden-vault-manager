@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace BitwardenVaultManager.Models
+namespace BitwardenVaultManager.Service.Models
 {
     public sealed class BitwardenVault
     {

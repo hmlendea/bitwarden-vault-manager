@@ -1,7 +1,7 @@
 using NuciCLI;
 using NuciCLI.Menus;
 
-using BitwardenVaultManager.Services;
+using BitwardenVaultManager.Service;
 
 namespace BitwardenVaultManager.Menus
 {
