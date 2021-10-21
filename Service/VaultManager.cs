@@ -61,5 +61,18 @@ namespace BitwardenVaultManager.Service
             Console.WriteLine($"Password: {item.Login.Password}");
             Console.WriteLine($"TOTP: {item.Login.TOTP}");
         }
+
+        public IDictionary<string, int> GetEmailAddressUsageCounts()
+            => vault.Items
+                .Where(item => !string.IsNullOrWhiteSpace(item.EmailAddress))
+                .Select(item => item.EmailAddress.ToLowerInvariant())
+                .Distinct()
+                .ToDictionary(
+                    emailAddress => emailAddress,
+                    emailAddress => vault.Items
+                        .Where(item =>
+                            !string.IsNullOrWhiteSpace(item.EmailAddress) &&
+                            item.EmailAddress.Equals(emailAddress, StringComparison.InvariantCultureIgnoreCase))
+                        .Count());
     }
 }

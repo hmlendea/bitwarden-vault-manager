@@ -24,6 +24,7 @@ namespace BitwardenVaultManager.Menus
 
             AddCommand("load", "Load a Bitwarden vault", () => LoadFile());
             AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
+            AddCommand("get-email-addresses", "Gets the list of all email addresses used", () => GetEmailAddresses());
         }
 
         void LoadFile()
@@ -46,6 +47,16 @@ namespace BitwardenVaultManager.Menus
             foreach (string error in errors)
             {
                 NuciConsole.WriteLine(error, NuciConsoleColour.Red);
+            }
+        }
+
+        void GetEmailAddresses()
+        {
+            IDictionary<string, int> emailAddressUsages = vaultManager.GetEmailAddressUsageCounts();
+
+            foreach (string emailAddress in emailAddressUsages.Keys.OrderByDescending(x => emailAddressUsages[x]).ThenBy(x => x))
+            {
+                NuciConsole.WriteLine($"{emailAddress} ({emailAddressUsages[emailAddress]} accounts)");
             }
         }
     }
