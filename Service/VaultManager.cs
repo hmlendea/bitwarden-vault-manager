@@ -10,6 +10,8 @@ namespace BitwardenVaultManager.Service
 {
     public class VaultManager
     {
+        static string WeakPasswordFieldName => "Weak Password";
+
         readonly IBitwardenVaultFileHandler vaultFileHandler;
         readonly IPasswordChecker passwordChecker;
 
@@ -72,7 +74,12 @@ namespace BitwardenVaultManager.Service
             => vault.Items
                 .Where(item =>
                     item.Type == BitwardenItemType.Login &&
-                    !(string.IsNullOrWhiteSpace(item.Login.Password)))
+                    !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
+                    (
+                        item.Fields is null ||
+                        item.Fields.All(x => !x.Name.Equals(WeakPasswordFieldName)) ||
+                        item.Fields.First(x => x.Name.Equals(WeakPasswordFieldName)).Value.Equals(false.ToString(), StringComparison.InvariantCultureIgnoreCase)
+                    ))
                 .Where(item => passwordChecker.GetPasswordStrength(item.Login.Password) < PasswordStrength.Strong);
 
         public IEnumerable<BitwardenItem> GetItemsByEmailAddress(string emailAddress)
