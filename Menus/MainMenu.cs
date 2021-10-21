@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+
 using NuciCLI;
 using NuciCLI.Menus;
 
@@ -20,6 +23,7 @@ namespace BitwardenVaultManager.Menus
             vaultManager = new VaultManager();
 
             AddCommand("load", "Load a Bitwarden vault", () => LoadFile());
+            AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
         }
 
         void LoadFile()
@@ -27,6 +31,22 @@ namespace BitwardenVaultManager.Menus
             string filePath = NuciConsole.ReadLine("Path to the (unencrypted) Bitwarden exported JSON: ");
             vaultManager.Load(filePath);
             vaultManager.PrintItemDetails();
+        }
+
+        void GetMisconfiguredItems()
+        {
+            IEnumerable<string> errors = vaultManager.GetMisconfiguredItems();
+
+            if (errors.Count() == 0)
+            {
+                NuciConsole.WriteLine("All items are properly configured, good job!", NuciConsoleColour.Green);
+                return;
+            }
+
+            foreach (string error in errors)
+            {
+                NuciConsole.WriteLine(error, NuciConsoleColour.Red);
+            }
         }
     }
 }

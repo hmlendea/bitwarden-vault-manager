@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using BitwardenVaultManager.DataAccess;
@@ -27,6 +28,21 @@ namespace BitwardenVaultManager.Service
         public void Load(string filePath)
         {
             vault = vaultFileHandler.Load(filePath).ToServiceModel();
+        }
+
+        public IEnumerable<string> GetMisconfiguredItems()
+        {
+            IList<string> errors = new List<string>();
+
+            foreach (BitwardenItem item in vault.Items.Where(x => x.Type == BitwardenItemType.Login))
+            {
+                if (string.IsNullOrWhiteSpace(item.EmailAddress))
+                {
+                    errors.Add($"The '{item.Name}' login does not have ane 'Email Address' field");
+                }
+            }
+
+            return errors;
         }
 
         public void PrintItemDetails()

@@ -29,6 +29,11 @@ namespace BitwardenVaultManager.Service.Mapping
                 serviceModel.Login = dataObject.Login.ToServiceModel();
             }
 
+            if (dataObject.Fields != null)
+            {
+                serviceModel.Fields = dataObject.Fields.ToServiceModels();
+            }
+
             return serviceModel;
         }
 
@@ -42,6 +47,7 @@ namespace BitwardenVaultManager.Service.Mapping
             dataObject.Favourite = serviceModel.IsFavourite;
             dataObject.Notes = serviceModel.Notes;
             dataObject.Login = serviceModel.Login.ToDataObject();
+            dataObject.Fields = serviceModel.Fields.ToDataObjects();
 
             return dataObject;
         }

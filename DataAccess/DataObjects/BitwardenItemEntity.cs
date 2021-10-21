@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace BitwardenVaultManager.DataAccess.DataObjects
 {
     public sealed class BitwardenItemEntity
@@ -15,5 +17,7 @@ namespace BitwardenVaultManager.DataAccess.DataObjects
         public string Notes { get; set; }
 
         public BitwardenLoginEntity Login { get; set; }
+
+        public IEnumerable<BitwardenFieldEntity> Fields { get; set; }
     }
 }
