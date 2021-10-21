@@ -6,4 +6,8 @@
     <RootNamespace>BitwardenVaultManager</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="NuciCLI.Menus" Version="1.4.0" />
+  </ItemGroup>
+
 </Project>
