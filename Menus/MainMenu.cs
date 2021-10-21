@@ -29,6 +29,7 @@ namespace BitwardenVaultManager.Menus
             AddCommand("get-email-address-usages", "Gets the list of all the accounts that use a given email address", () => GetEmailAddresseUsages());
             AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
             AddCommand("get-reused-passwords", "Gets the list of passwords that are reused across different accounts", () => GetReusedPasswords());
+            AddCommand("get-weak-passwords", "Gets the list of all weak passwords", () => GetWeakPasswords());
         }
 
         void LoadFile()
@@ -101,6 +102,24 @@ namespace BitwardenVaultManager.Menus
                 }
 
                 NuciConsole.WriteLine("The password '" + password + "' is reused accross " + items.Count + " accounts:", NuciConsoleColour.Red);
+
+                foreach (BitwardenItem item in items)
+                {
+                    string folderName = vaultManager.GetFolderName(item.FolderId);
+                    NuciConsole.WriteLine($" - {folderName}/{item.Name}");
+                }
+            }
+        }
+
+        void GetWeakPasswords()
+        {
+            IEnumerable<string> passwords = vaultManager.GetWeakPasswords();
+
+            foreach (string password in passwords)
+            {
+                IList<BitwardenItem> items = vaultManager.GetItemsByPassword(password).ToList();
+
+                NuciConsole.WriteLine("The password '" + password + "' is weak. Accounts that use it (" + items.Count + "):", NuciConsoleColour.Red);
 
                 foreach (BitwardenItem item in items)
                 {

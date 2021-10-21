@@ -11,18 +11,24 @@ namespace BitwardenVaultManager.Service
     public class VaultManager
     {
         readonly IBitwardenVaultFileHandler vaultFileHandler;
+        readonly IPasswordChecker passwordChecker;
 
         BitwardenVault vault;
 
         public VaultManager()
-            : this(new BitwardenVaultFileHandler())
+            : this(
+                new BitwardenVaultFileHandler(),
+                new PasswordChecker())
         {
             
         }
 
-        public VaultManager(IBitwardenVaultFileHandler vaultFileHandler)
+        public VaultManager(
+            IBitwardenVaultFileHandler vaultFileHandler,
+            IPasswordChecker passwordChecker)
         {
             this.vaultFileHandler = vaultFileHandler;
+            this.passwordChecker = passwordChecker;
         }
 
         public void Load(string filePath)
@@ -46,9 +52,7 @@ namespace BitwardenVaultManager.Service
         }
 
         public string GetFolderName(Guid folderId)
-            => vault.Folders
-                .FirstOrDefault(folder => folder.Id.Equals(folderId))?
-                .Name;
+            => vault.Folders.FirstOrDefault(folder => folder.Id.Equals(folderId))?.Name;
 
         public IEnumerable<string> GetEmailAddresses()
             => vault.Items
@@ -63,6 +67,9 @@ namespace BitwardenVaultManager.Service
                     !(string.IsNullOrWhiteSpace(item.Login.Password)))
                 .Select(item => item.Login.Password)
                 .Distinct();
+        
+        public IEnumerable<string> GetWeakPasswords()
+            => GetPasswords().Where(password => passwordChecker.GetPasswordStrength(password) < PasswordStrength.Strong);
 
         public IEnumerable<BitwardenItem> GetItemsByEmailAddress(string emailAddress)
             => vault.Items
