@@ -62,8 +62,7 @@ namespace BitwardenVaultManager.Menus
 
             foreach (BitwardenItem item in items)
             {
-                string folderName = vaultManager.GetFolderName(item.FolderId);
-                results.Add($"{folderName}/{item.Name}");
+                results.Add(GetItemDescription(item));
             }
 
             foreach (string result in results.OrderBy(x => x))
@@ -105,8 +104,7 @@ namespace BitwardenVaultManager.Menus
 
                 foreach (BitwardenItem item in items)
                 {
-                    string folderName = vaultManager.GetFolderName(item.FolderId);
-                    NuciConsole.WriteLine($" - {folderName}/{item.Name}");
+                    NuciConsole.WriteLine(GetItemDescription(item));
                 }
             }
         }
@@ -118,14 +116,36 @@ namespace BitwardenVaultManager.Menus
 
             foreach (BitwardenItem item in items)
             {
-                string folderName = vaultManager.GetFolderName(item.FolderId);
-                results.Add($"{folderName}/{item.Name}");
+                results.Add(GetItemDescription(item));
             }
 
             foreach (string result in results.OrderBy(x => x))
             {
                 NuciConsole.WriteLine(result, NuciConsoleColour.Red);
             }
+        }
+
+        string GetItemDescription(BitwardenItem item)
+        {
+            string folderName = vaultManager.GetFolderName(item.FolderId);
+            string itemDescription = string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(folderName))
+            {
+                itemDescription += $"{folderName}/";
+            }
+
+            if (!string.IsNullOrWhiteSpace(item.Name))
+            {
+                itemDescription += item.Name;
+            }
+
+            if (!(item.Login is null) && !string.IsNullOrWhiteSpace(item.Login.Username))
+            {
+                itemDescription += $" - {item.Login.Username}";
+            }
+            
+            return itemDescription;
         }
     }
 }
