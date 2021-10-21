@@ -45,34 +45,16 @@ namespace BitwardenVaultManager.Service
             return errors;
         }
 
-        public void PrintItemDetails()
-        {
-            BitwardenItem item = vault.Items.First(x =>
-                x.FolderId != Guid.Empty &&
-                x.Type == BitwardenItemType.Login);
-
-            BitwardenFolder folder = vault.Folders.First(x => x.Id == item.FolderId);
-
-            Console.WriteLine($"Id: {item.Name}");
-            Console.WriteLine($"Name: {item.Name}");
-            Console.WriteLine($"Type: {item.Type}");
-            Console.WriteLine($"Folder: {folder.Name}");
-            Console.WriteLine($"Username: {item.Login.Username}");
-            Console.WriteLine($"Password: {item.Login.Password}");
-            Console.WriteLine($"TOTP: {item.Login.TOTP}");
-        }
-
-        public IDictionary<string, int> GetEmailAddressUsageCounts()
+        public IEnumerable<string> GetEmailAddresses()
             => vault.Items
                 .Where(item => !string.IsNullOrWhiteSpace(item.EmailAddress))
                 .Select(item => item.EmailAddress.ToLowerInvariant())
-                .Distinct()
-                .ToDictionary(
-                    emailAddress => emailAddress,
-                    emailAddress => vault.Items
-                        .Where(item =>
-                            !string.IsNullOrWhiteSpace(item.EmailAddress) &&
-                            item.EmailAddress.Equals(emailAddress, StringComparison.InvariantCultureIgnoreCase))
-                        .Count());
+                .Distinct();
+
+        public IEnumerable<BitwardenItem> GetItemsByEmailAddress(string emailAddress)
+            => vault.Items
+                .Where(item =>
+                    !string.IsNullOrWhiteSpace(item.EmailAddress) &&
+                    item.EmailAddress.Equals(emailAddress, StringComparison.InvariantCultureIgnoreCase));
     }
 }

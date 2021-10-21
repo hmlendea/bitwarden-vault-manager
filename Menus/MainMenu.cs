@@ -31,7 +31,6 @@ namespace BitwardenVaultManager.Menus
         {
             string filePath = NuciConsole.ReadLine("Path to the (unencrypted) Bitwarden exported JSON: ");
             vaultManager.Load(filePath);
-            vaultManager.PrintItemDetails();
         }
 
         void GetMisconfiguredItems()
@@ -52,7 +51,13 @@ namespace BitwardenVaultManager.Menus
 
         void GetEmailAddresses()
         {
-            IDictionary<string, int> emailAddressUsages = vaultManager.GetEmailAddressUsageCounts();
+            IEnumerable<string> emailAddresses = vaultManager.GetEmailAddresses();
+            IDictionary<string, int> emailAddressUsages = emailAddresses.ToDictionary(x => x, x => 0);
+
+            foreach (string emailAddress in emailAddresses)
+            {
+                emailAddressUsages[emailAddress] = vaultManager.GetItemsByEmailAddress(emailAddress).Count();
+            }
 
             foreach (string emailAddress in emailAddressUsages.Keys.OrderByDescending(x => emailAddressUsages[x]).ThenBy(x => x))
             {
