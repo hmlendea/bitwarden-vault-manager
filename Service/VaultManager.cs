@@ -47,7 +47,7 @@ namespace BitwardenVaultManager.Service
 
         public string GetFolderName(Guid folderId)
             => vault.Folders
-                .FirstOrDefault(folder => folder.Id.Equals(folderId))
+                .FirstOrDefault(folder => folder.Id.Equals(folderId))?
                 .Name;
 
         public IEnumerable<string> GetEmailAddresses()
@@ -56,10 +56,25 @@ namespace BitwardenVaultManager.Service
                 .Select(item => item.EmailAddress.ToLowerInvariant())
                 .Distinct();
 
+        public IEnumerable<string> GetPasswords()
+            => vault.Items
+                .Where(item =>
+                    item.Type == BitwardenItemType.Login &&
+                    !(string.IsNullOrWhiteSpace(item.Login.Password)))
+                .Select(item => item.Login.Password)
+                .Distinct();
+
         public IEnumerable<BitwardenItem> GetItemsByEmailAddress(string emailAddress)
             => vault.Items
                 .Where(item =>
                     !string.IsNullOrWhiteSpace(item.EmailAddress) &&
                     item.EmailAddress.Equals(emailAddress, StringComparison.InvariantCultureIgnoreCase));
+
+        public IEnumerable<BitwardenItem> GetItemsByPassword(string password)
+            => vault.Items
+                .Where(item =>
+                    item.Type == BitwardenItemType.Login &&
+                    !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
+                    item.Login.Password.Equals(password, StringComparison.InvariantCulture));
     }
 }

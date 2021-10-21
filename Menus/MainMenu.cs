@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,31 +25,16 @@ namespace BitwardenVaultManager.Menus
             vaultManager = new VaultManager();
 
             AddCommand("load", "Load a Bitwarden vault", () => LoadFile());
-            AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
             AddCommand("get-email-addresses", "Gets the list of all email addresses used", () => GetEmailAddresses());
-            AddCommand("get-email-addresse-usages", "Gets the list of all the accounts that use a given email address", () => GetEmailAddresseUsages());
+            AddCommand("get-email-address-usages", "Gets the list of all the accounts that use a given email address", () => GetEmailAddresseUsages());
+            AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
+            AddCommand("get-reused-passwords", "Gets the list of passwords that are reused across different accounts", () => GetReusedPasswords());
         }
 
         void LoadFile()
         {
             string filePath = NuciConsole.ReadLine("Path to the (unencrypted) Bitwarden exported JSON: ");
             vaultManager.Load(filePath);
-        }
-
-        void GetMisconfiguredItems()
-        {
-            IEnumerable<string> errors = vaultManager.GetMisconfiguredItems();
-
-            if (errors.Count() == 0)
-            {
-                NuciConsole.WriteLine("All items are properly configured, good job!", NuciConsoleColour.Green);
-                return;
-            }
-
-            foreach (string error in errors)
-            {
-                NuciConsole.WriteLine(error, NuciConsoleColour.Red);
-            }
         }
 
         void GetEmailAddresses()
@@ -82,6 +68,45 @@ namespace BitwardenVaultManager.Menus
             foreach (string result in results.OrderBy(x => x))
             {
                 NuciConsole.WriteLine(result);
+            }
+        }
+
+        void GetMisconfiguredItems()
+        {
+            IEnumerable<string> errors = vaultManager.GetMisconfiguredItems();
+
+            if (errors.Count() == 0)
+            {
+                NuciConsole.WriteLine("All items are properly configured, good job!", NuciConsoleColour.Green);
+                return;
+            }
+
+            foreach (string error in errors)
+            {
+                NuciConsole.WriteLine(error, NuciConsoleColour.Red);
+            }
+        }
+
+        void GetReusedPasswords()
+        {
+            IEnumerable<string> passwords = vaultManager.GetPasswords();
+
+            foreach (string password in passwords)
+            {
+                IList<BitwardenItem> items = vaultManager.GetItemsByPassword(password).ToList();
+
+                if (items.Count <= 1)
+                {
+                    continue;
+                }
+
+                NuciConsole.WriteLine("The password '" + password + "' is reused accross " + items.Count + " accounts:", NuciConsoleColour.Red);
+
+                foreach (BitwardenItem item in items)
+                {
+                    string folderName = vaultManager.GetFolderName(item.FolderId);
+                    NuciConsole.WriteLine($" - {folderName}/{item.Name}");
+                }
             }
         }
     }
