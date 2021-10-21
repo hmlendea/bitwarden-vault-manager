@@ -68,8 +68,12 @@ namespace BitwardenVaultManager.Service
                 .Select(item => item.Login.Password)
                 .Distinct();
         
-        public IEnumerable<string> GetWeakPasswords()
-            => GetPasswords().Where(password => passwordChecker.GetPasswordStrength(password) < PasswordStrength.Strong);
+        public IEnumerable<BitwardenItem> GetItemsWithWeakPasswords()
+            => vault.Items
+                .Where(item =>
+                    item.Type == BitwardenItemType.Login &&
+                    !(string.IsNullOrWhiteSpace(item.Login.Password)))
+                .Where(item => passwordChecker.GetPasswordStrength(item.Login.Password) < PasswordStrength.Strong);
 
         public IEnumerable<BitwardenItem> GetItemsByEmailAddress(string emailAddress)
             => vault.Items

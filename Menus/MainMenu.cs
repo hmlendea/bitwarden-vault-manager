@@ -113,19 +113,18 @@ namespace BitwardenVaultManager.Menus
 
         void GetWeakPasswords()
         {
-            IEnumerable<string> passwords = vaultManager.GetWeakPasswords();
+            IEnumerable<BitwardenItem> items = vaultManager.GetItemsWithWeakPasswords();
+            IList<string> results = new List<string>();
 
-            foreach (string password in passwords)
+            foreach (BitwardenItem item in items)
             {
-                IList<BitwardenItem> items = vaultManager.GetItemsByPassword(password).ToList();
+                string folderName = vaultManager.GetFolderName(item.FolderId);
+                results.Add($"{folderName}/{item.Name}");
+            }
 
-                NuciConsole.WriteLine("The password '" + password + "' is weak. Accounts that use it (" + items.Count + "):", NuciConsoleColour.Red);
-
-                foreach (BitwardenItem item in items)
-                {
-                    string folderName = vaultManager.GetFolderName(item.FolderId);
-                    NuciConsole.WriteLine($" - {folderName}/{item.Name}");
-                }
+            foreach (string result in results.OrderBy(x => x))
+            {
+                NuciConsole.WriteLine(result, NuciConsoleColour.Red);
             }
         }
     }
