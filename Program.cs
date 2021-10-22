@@ -9,24 +9,7 @@ namespace BitwardenVaultManager
 {
     class Program
     {
-        static string applicationDirectory;
-
-        /// <summary>
-        /// Gets the application directory.
-        /// </summary>
-        /// <value>The application directory.</value>
-        public static string ApplicationDirectory
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(applicationDirectory))
-                {
-                    applicationDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                }
-
-                return applicationDirectory;
-            }
-        }
+        public static string VaultFilePath { get; private set; }
 
         /// <summary>
         /// The entry point of the program, where the program control starts and ends.
@@ -35,6 +18,8 @@ namespace BitwardenVaultManager
         public static void Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
+
+            VaultFilePath = string.Concat(args);
 
             MenuManager.Instance.AreStatisticsEnabled = true;
             MenuManager.Instance.Start<MainMenu>();

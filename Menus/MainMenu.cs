@@ -23,19 +23,13 @@ namespace BitwardenVaultManager.Menus
         public MainMenu() : base("Bitwarden Vault Manager")
         {
             vaultManager = new VaultManager();
+            vaultManager.Load(Program.VaultFilePath);
 
-            AddCommand("load", "Load a Bitwarden vault", () => LoadFile());
             AddCommand("get-email-addresses", "Gets the list of all email addresses used", () => GetEmailAddresses());
             AddCommand("get-email-address-usages", "Gets the list of all the accounts that use a given email address", () => GetEmailAddresseUsages());
             AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
             AddCommand("get-reused-passwords", "Gets the list of passwords that are reused across different accounts", () => GetReusedPasswords());
             AddCommand("get-weak-passwords", "Gets the list of all weak passwords", () => GetWeakPasswords());
-        }
-
-        void LoadFile()
-        {
-            string filePath = NuciConsole.ReadLine("Path to the (unencrypted) Bitwarden exported JSON: ");
-            vaultManager.Load(filePath);
         }
 
         void GetEmailAddresses()
