@@ -7,6 +7,7 @@ namespace BitwardenVaultManager.Service.Models
     public sealed class BitwardenItem
     {
         static string EmailAddressFieldName => "Email Address";
+        static string UsernameFieldName => "Username";
 
         public Guid Id { get; set; }
 
@@ -37,6 +38,26 @@ namespace BitwardenVaultManager.Service.Models
                 if (!(Login is null) &&
                     !string.IsNullOrWhiteSpace(Login.Username) &&
                     Login.Username.Contains('@'))
+                {
+                    return Login.Username;
+                }
+
+                return null;
+            }
+        }
+
+        public string Username
+        {
+            get
+            {
+                if (!(Fields is null) &&
+                    Fields.Any(field => field.Name.Equals(UsernameFieldName)))
+                {
+                    return Fields.FirstOrDefault(field => field.Name == UsernameFieldName).Value;
+                }
+
+                if (!(Login is null) &&
+                    !string.IsNullOrWhiteSpace(Login.Username))
                 {
                     return Login.Username;
                 }

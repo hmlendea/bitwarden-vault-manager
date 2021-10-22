@@ -25,11 +25,12 @@ namespace BitwardenVaultManager.Menus
             vaultManager = new VaultManager();
             vaultManager.Load(Program.VaultFilePath);
 
-            AddCommand("get-email-addresses", "Gets the list of all email addresses used", () => GetEmailAddresses());
-            AddCommand("get-email-address-usages", "Gets the list of all the accounts that use a given email address", () => GetEmailAddresseUsages());
+            AddCommand("get-email-addresses", "Gets all email addresses", () => GetEmailAddresses());
+            AddCommand("get-email-address-usages", "Gets all the accounts that are associated with a given email address", () => GetEmailAddresseUsages());
             AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
-            AddCommand("get-reused-passwords", "Gets the list of passwords that are reused across different accounts", () => GetReusedPasswords());
-            AddCommand("get-weak-passwords", "Gets the list of all weak passwords", () => GetWeakPasswords());
+            AddCommand("get-reused-passwords", "Gets the passwords that are reused across different accounts", () => GetReusedPasswords());
+            AddCommand("get-totp-urls", "Gets the TOTP association URLs for all the items that have them", () => GetTotpUrls());
+            AddCommand("get-weak-passwords", "Gets all weak passwords", () => GetWeakPasswords());
         }
 
         void GetEmailAddresses()
@@ -100,6 +101,16 @@ namespace BitwardenVaultManager.Menus
                 {
                     NuciConsole.WriteLine(GetItemDescription(item));
                 }
+            }
+        }
+
+        void GetTotpUrls()
+        {
+            IEnumerable<string> items = vaultManager.GetTotpUrls();
+
+            foreach (string url in items.OrderBy(x => x))
+            {
+                NuciConsole.WriteLine(url);
             }
         }
 

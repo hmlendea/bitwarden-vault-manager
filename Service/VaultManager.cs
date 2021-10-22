@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 
 using BitwardenVaultManager.DataAccess;
 using BitwardenVaultManager.Service.Mapping;
@@ -94,5 +95,22 @@ namespace BitwardenVaultManager.Service
                     item.Type == BitwardenItemType.Login &&
                     !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
                     item.Login.Password.Equals(password, StringComparison.InvariantCulture));
+
+        public IEnumerable<string> GetTotpUrls()
+            => vault.Items
+                .Where(item =>
+                    item.Type == BitwardenItemType.Login &&
+                    !(string.IsNullOrWhiteSpace(item.Login.TOTP)))
+                .OrderBy(item => item.IsFavourite)
+                .ThenBy(item => item.Name)
+                .ThenBy(item => item.Username)
+                .Select(item => GetTotpUrl(item));
+
+
+        string GetTotpUrl(BitwardenItem item)
+        {
+            string rawUrl = $"otpauth://totp/{item.Name}:{item.Username}:?secret={item.Login.TOTP}&issuer={item.Name}";
+            return Uri.EscapeUriString(rawUrl);
+        }
     }
 }
