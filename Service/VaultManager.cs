@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 
 using BitwardenVaultManager.DataAccess;
 using BitwardenVaultManager.Service.Mapping;

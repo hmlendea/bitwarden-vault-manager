@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -28,6 +27,7 @@ namespace BitwardenVaultManager.Menus
             AddCommand("get-email-addresses", "Gets all email addresses", () => GetEmailAddresses());
             AddCommand("get-email-address-usages", "Gets all the accounts that are associated with a given email address", () => GetEmailAddresseUsages());
             AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
+            AddCommand("get-password-usages", "Gets all the accounts that use a given password", () => GetPasswordUsages());
             AddCommand("get-reused-passwords", "Gets the passwords that are reused across different accounts", () => GetReusedPasswords());
             AddCommand("get-totp-urls", "Gets the TOTP association URLs for all the items that have them", () => GetTotpUrls());
             AddCommand("get-weak-passwords", "Gets all weak passwords", () => GetWeakPasswords());
@@ -79,6 +79,28 @@ namespace BitwardenVaultManager.Menus
             foreach (string error in errors)
             {
                 NuciConsole.WriteLine(error, NuciConsoleColour.Red);
+            }
+        }
+
+        void GetPasswordUsages()
+        {
+            string password = NuciConsole.ReadLine("Password: ");
+            IEnumerable<BitwardenItem> items = vaultManager.GetItemsByPassword(password);
+            IList<string> results = new List<string>();
+
+            foreach (BitwardenItem item in items)
+            {
+                results.Add(GetItemDescription(item));
+            }
+
+            if (!results.Any())
+            {
+                NuciConsole.WriteLine("There are no logins using the provided password!");
+            }
+
+            foreach (string result in results.OrderBy(x => x))
+            {
+                NuciConsole.WriteLine(result);
             }
         }
 
