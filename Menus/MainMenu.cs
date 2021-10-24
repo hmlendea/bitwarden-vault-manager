@@ -14,7 +14,7 @@ namespace BitwardenVaultManager.Menus
     /// </summary>
     public class MainMenu : Menu
     {
-        readonly VaultManager vaultManager;
+        readonly IVaultManager vaultManager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainMenu"/> class.

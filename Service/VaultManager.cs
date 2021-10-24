@@ -8,7 +8,7 @@ using BitwardenVaultManager.Service.Models;
 
 namespace BitwardenVaultManager.Service
 {
-    public class VaultManager
+    public class VaultManager : IVaultManager
     {
         static string WeakPasswordFieldName => "Weak Password";
 
