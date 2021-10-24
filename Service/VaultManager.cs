@@ -46,7 +46,7 @@ namespace BitwardenVaultManager.Service
             {
                 if (string.IsNullOrWhiteSpace(item.EmailAddress))
                 {
-                    errors.Add($"The '{item.Name}' login does not have ane 'Email Address' field");
+                    errors.Add($"The '{item.Name}' login does not have an 'Email Address' field");
                 }
             }
 
@@ -69,18 +69,6 @@ namespace BitwardenVaultManager.Service
                     !(string.IsNullOrWhiteSpace(item.Login.Password)))
                 .Select(item => item.Login.Password)
                 .Distinct();
-        
-        public IEnumerable<BitwardenItem> GetItemsWithWeakPasswords()
-            => vault.Items
-                .Where(item =>
-                    item.Type == BitwardenItemType.Login &&
-                    !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
-                    (
-                        item.Fields is null ||
-                        item.Fields.All(x => !x.Name.Equals(WeakPasswordFieldName)) ||
-                        item.Fields.First(x => x.Name.Equals(WeakPasswordFieldName)).Value.Equals(false.ToString(), StringComparison.InvariantCultureIgnoreCase)
-                    ))
-                .Where(item => passwordChecker.GetPasswordStrength(item.Login.Password) < PasswordStrength.Strong);
 
         public IEnumerable<BitwardenItem> GetItemsByEmailAddress(string emailAddress)
             => vault.Items
@@ -94,6 +82,25 @@ namespace BitwardenVaultManager.Service
                     item.Type == BitwardenItemType.Login &&
                     !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
                     item.Login.Password.Equals(password, StringComparison.InvariantCulture));
+
+        public IEnumerable<BitwardenItem> GetItemsByUsername(string username)
+            => vault.Items
+                .Where(item =>
+                    item.Type == BitwardenItemType.Login &&
+                    !(string.IsNullOrWhiteSpace(item.Login.Username)) &&
+                    item.Login.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase));
+        
+        public IEnumerable<BitwardenItem> GetItemsWithWeakPasswords()
+            => vault.Items
+                .Where(item =>
+                    item.Type == BitwardenItemType.Login &&
+                    !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
+                    (
+                        item.Fields is null ||
+                        item.Fields.All(x => !x.Name.Equals(WeakPasswordFieldName)) ||
+                        item.Fields.First(x => x.Name.Equals(WeakPasswordFieldName)).Value.Equals(false.ToString(), StringComparison.InvariantCultureIgnoreCase)
+                    ))
+                .Where(item => passwordChecker.GetPasswordStrength(item.Login.Password) < PasswordStrength.Strong);
 
         public IEnumerable<string> GetTotpUrls()
             => vault.Items

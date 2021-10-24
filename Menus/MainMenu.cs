@@ -25,11 +25,12 @@ namespace BitwardenVaultManager.Menus
             vaultManager.Load(Program.VaultFilePath);
 
             AddCommand("get-email-addresses", "Gets all email addresses", () => GetEmailAddresses());
-            AddCommand("get-email-address-usages", "Gets all the accounts that are associated with a given email address", () => GetEmailAddresseUsages());
+            AddCommand("get-email-address-usages", "Gets all the accounts that are associated with a given email address", () => GetEmailAddressUsages());
             AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
             AddCommand("get-password-usages", "Gets all the accounts that use a given password", () => GetPasswordUsages());
             AddCommand("get-reused-passwords", "Gets the passwords that are reused across different accounts", () => GetReusedPasswords());
             AddCommand("get-totp-urls", "Gets the TOTP association URLs for all the items that have them", () => GetTotpUrls());
+            AddCommand("get-username-usages", "Gets all the accounts that use a given username", () => GetUsernameUsages());
             AddCommand("get-weak-passwords", "Gets all weak passwords", () => GetWeakPasswords());
         }
 
@@ -49,7 +50,7 @@ namespace BitwardenVaultManager.Menus
             }
         }
 
-        void GetEmailAddresseUsages()
+        void GetEmailAddressUsages()
         {
             string emailAddress = NuciConsole.ReadLine("Email Address: ");
             IEnumerable<BitwardenItem> items = vaultManager.GetItemsByEmailAddress(emailAddress);
@@ -133,6 +134,28 @@ namespace BitwardenVaultManager.Menus
             foreach (string url in items.OrderBy(x => x))
             {
                 NuciConsole.WriteLine(url);
+            }
+        }
+
+        void GetUsernameUsages()
+        {
+            string username = NuciConsole.ReadLine("Username: ");
+            IEnumerable<BitwardenItem> items = vaultManager.GetItemsByUsername(username);
+            IList<string> results = new List<string>();
+
+            foreach (BitwardenItem item in items)
+            {
+                results.Add(GetItemDescription(item));
+            }
+
+            if (!results.Any())
+            {
+                NuciConsole.WriteLine("There are no logins using the provided username!");
+            }
+
+            foreach (string result in results.OrderBy(x => x))
+            {
+                NuciConsole.WriteLine(result);
             }
         }
 
