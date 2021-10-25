@@ -131,7 +131,7 @@ namespace BitwardenVaultManager.Menus
         {
             IEnumerable<string> items = vaultManager.GetTotpUrls();
 
-            foreach (string url in items.OrderBy(x => x))
+            foreach (string url in items)
             {
                 NuciConsole.WriteLine(url);
             }
