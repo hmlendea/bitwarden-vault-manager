@@ -5,8 +5,12 @@ namespace BitwardenVaultManager.Service
         Terrible = 0,
         VeryWeak = 1,
         Weak = 2,
-        Medium = 3,
-        Strong = 4,
-        VeryStrong = 5
+        Poor = 3,
+        Acceptable = 4,
+        Medium = 5,
+        Good = 6,
+        Strong = 7,
+        VeryStrong = 8,
+        Ultimate = 9
     }
 }
