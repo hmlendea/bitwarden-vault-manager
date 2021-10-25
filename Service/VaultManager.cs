@@ -115,7 +115,22 @@ namespace BitwardenVaultManager.Service
 
         string GetTotpUrl(BitwardenItem item)
         {
-            string rawUrl = $"otpauth://totp/{item.Name}:{item.Username}:?secret={item.Login.TOTP}&issuer={item.Name}";
+            string method = "totp";
+            int digits = 6;
+
+            if (item.Name.Contains("Steam", StringComparison.InvariantCultureIgnoreCase))
+            {
+                method = "steam";
+                digits = 5;
+            }
+            else if (item.Name.Contains("Battle.net", StringComparison.InvariantCultureIgnoreCase) ||
+                     item.Name.Contains("Blizzard", StringComparison.InvariantCultureIgnoreCase))
+            {
+                digits = 8;
+            }
+
+            string rawUrl = $"otpauth://{method}/{item.Name}:{item.Username}:?secret={item.Login.TOTP}&digits={digits}&issuer={item.Name}";
+            
             return Uri.EscapeUriString(rawUrl);
         }
     }
