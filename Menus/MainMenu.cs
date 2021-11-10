@@ -39,6 +39,16 @@ namespace BitwardenVaultManager.Menus
             IEnumerable<string> emailAddresses = vaultManager.GetEmailAddresses();
             IDictionary<string, int> emailAddressUsages = emailAddresses.ToDictionary(x => x, x => 0);
 
+            if (!emailAddresses.Any())
+            {
+                NuciConsole.WriteLine("There are no email addresses associated with any item!");
+                return;
+            }
+            else
+            {
+                NuciConsole.WriteLine($"There are {emailAddressUsages.Count} email addresses:");
+            }
+
             foreach (string emailAddress in emailAddresses)
             {
                 emailAddressUsages[emailAddress] = vaultManager.GetItemsByEmailAddress(emailAddress).Count();
@@ -61,9 +71,19 @@ namespace BitwardenVaultManager.Menus
                 results.Add(GetItemDescription(item));
             }
 
+            if (!results.Any())
+            {
+                NuciConsole.WriteLine("There are no logins associated with the provided email address!");
+                return;
+            }
+            else
+            {
+                NuciConsole.WriteLine($"The '{emailAddress}' email address is associated with {results.Count} items:");
+            }
+
             foreach (string result in results.OrderBy(x => x))
             {
-                NuciConsole.WriteLine(result);
+                NuciConsole.WriteLine($" - {result}");
             }
         }
 
@@ -71,10 +91,14 @@ namespace BitwardenVaultManager.Menus
         {
             IEnumerable<string> errors = vaultManager.GetMisconfiguredItems();
 
-            if (errors.Count() == 0)
+            if (!errors.Any())
             {
                 NuciConsole.WriteLine("All items are properly configured, good job!", NuciConsoleColour.Green);
                 return;
+            }
+            else
+            {
+                NuciConsole.WriteLine($"There are '{errors.Count()}' misconfigured items:");
             }
 
             foreach (string error in errors)
@@ -97,11 +121,16 @@ namespace BitwardenVaultManager.Menus
             if (!results.Any())
             {
                 NuciConsole.WriteLine("There are no logins using the provided password!");
+                return;
+            }
+            else
+            {
+                NuciConsole.WriteLine($"The '{password}' password is associated with {results.Count} items:");
             }
 
             foreach (string result in results.OrderBy(x => x))
             {
-                NuciConsole.WriteLine(result);
+                NuciConsole.WriteLine($" - {result}");
             }
         }
 
@@ -131,7 +160,7 @@ namespace BitwardenVaultManager.Menus
         {
             IEnumerable<string> items = vaultManager.GetTotpUrls();
 
-            foreach (string url in items.OrderBy(x => x))
+            foreach (string url in items)
             {
                 NuciConsole.WriteLine(url);
             }
@@ -151,11 +180,16 @@ namespace BitwardenVaultManager.Menus
             if (!results.Any())
             {
                 NuciConsole.WriteLine("There are no logins using the provided username!");
+                return;
+            }
+            else
+            {
+                NuciConsole.WriteLine($"The '{username}' username is associated with {results.Count} items:");
             }
 
             foreach (string result in results.OrderBy(x => x))
             {
-                NuciConsole.WriteLine(result);
+                NuciConsole.WriteLine($" - {result}");
             }
         }
 
