@@ -44,10 +44,8 @@ namespace BitwardenVaultManager.Menus
                 NuciConsole.WriteLine("There are no email addresses associated with any item!");
                 return;
             }
-            else
-            {
-                NuciConsole.WriteLine($"There are {emailAddressUsages.Count} email addresses:");
-            }
+            
+            NuciConsole.WriteLine($"There are {emailAddressUsages.Count} email addresses:");
 
             foreach (string emailAddress in emailAddresses)
             {
@@ -64,27 +62,19 @@ namespace BitwardenVaultManager.Menus
         {
             string emailAddress = NuciConsole.ReadLine("Email Address: ");
             IEnumerable<BitwardenItem> items = vaultManager.GetItemsByEmailAddress(emailAddress);
-            IList<string> results = new List<string>();
-
-            foreach (BitwardenItem item in items)
-            {
-                results.Add(GetItemDescription(item));
-            }
+            IList<string> results = items
+                .Select(item => $" - {GetItemDescription(item)}")
+                .OrderBy(x => x)
+                .ToList();
 
             if (!results.Any())
             {
                 NuciConsole.WriteLine("There are no logins associated with the provided email address!");
                 return;
             }
-            else
-            {
-                NuciConsole.WriteLine($"The '{emailAddress}' email address is associated with {results.Count} items:");
-            }
-
-            foreach (string result in results.OrderBy(x => x))
-            {
-                NuciConsole.WriteLine($" - {result}");
-            }
+            
+            NuciConsole.WriteLine($"The '{emailAddress}' email address is associated with {results.Count} items:");
+            NuciConsole.WriteLines(results);
         }
 
         void GetMisconfiguredItems()
@@ -111,27 +101,19 @@ namespace BitwardenVaultManager.Menus
         {
             string password = NuciConsole.ReadLine("Password: ");
             IEnumerable<BitwardenItem> items = vaultManager.GetItemsByPassword(password);
-            IList<string> results = new List<string>();
-
-            foreach (BitwardenItem item in items)
-            {
-                results.Add(GetItemDescription(item));
-            }
+            IList<string> results = items
+                .Select(item => $" - {GetItemDescription(item)}")
+                .OrderBy(x => x)
+                .ToList();
 
             if (!results.Any())
             {
                 NuciConsole.WriteLine("There are no logins using the provided password!");
                 return;
             }
-            else
-            {
-                NuciConsole.WriteLine($"The '{password}' password is associated with {results.Count} items:");
-            }
 
-            foreach (string result in results.OrderBy(x => x))
-            {
-                NuciConsole.WriteLine($" - {result}");
-            }
+            NuciConsole.WriteLine($"The '{password}' password is associated with {results.Count} items:");
+            NuciConsole.WriteLines(results);
         }
 
         void GetReusedPasswords()
@@ -148,62 +130,43 @@ namespace BitwardenVaultManager.Menus
                 }
 
                 NuciConsole.WriteLine("The password '" + password + "' is reused accross " + items.Count + " accounts:", NuciConsoleColour.Red);
-
-                foreach (BitwardenItem item in items)
-                {
-                    NuciConsole.WriteLine(GetItemDescription(item));
-                }
+                NuciConsole.WriteLines(items.Select(item => GetItemDescription(item)));
             }
         }
 
         void GetTotpUrls()
         {
-            IEnumerable<string> items = vaultManager.GetTotpUrls();
+            IEnumerable<string> urls = vaultManager.GetTotpUrls();
 
-            foreach (string url in items)
-            {
-                NuciConsole.WriteLine(url);
-            }
+            NuciConsole.WriteLines(urls);
         }
 
         void GetUsernameUsages()
         {
             string username = NuciConsole.ReadLine("Username: ");
             IEnumerable<BitwardenItem> items = vaultManager.GetItemsByUsername(username);
-            IList<string> results = new List<string>();
-
-            foreach (BitwardenItem item in items)
-            {
-                results.Add(GetItemDescription(item));
-            }
+            IList<string> results = items
+                .Select(item => $" - {GetItemDescription(item)}")
+                .OrderBy(x => x)
+                .ToList();
 
             if (!results.Any())
             {
                 NuciConsole.WriteLine("There are no logins using the provided username!");
                 return;
             }
-            else
-            {
-                NuciConsole.WriteLine($"The '{username}' username is associated with {results.Count} items:");
-            }
 
-            foreach (string result in results.OrderBy(x => x))
-            {
-                NuciConsole.WriteLine($" - {result}");
-            }
+            NuciConsole.WriteLine($"The '{username}' username is associated with {results.Count} items:");
+            NuciConsole.WriteLines(results);
         }
 
         void GetWeakPasswords()
         {
             IEnumerable<BitwardenItem> items = vaultManager.GetItemsWithWeakPasswords();
-            IList<string> results = new List<string>();
 
-            foreach (BitwardenItem item in items)
-            {
-                results.Add(GetItemDescription(item));
-            }
-
-            foreach (string result in results.OrderBy(x => x))
+            foreach (string result in items
+                .Select(item => GetItemDescription(item))
+                .OrderBy(x => x))
             {
                 NuciConsole.WriteLine(result, NuciConsoleColour.Red);
             }
