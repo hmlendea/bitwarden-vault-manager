@@ -25,6 +25,8 @@ namespace BitwardenVaultManager.Service
 
         IEnumerable<BitwardenItem> GetItemsWithWeakPasswords();
 
+        IEnumerable<BitwardenItem> GetItemsWithoutTotp();
+
         IEnumerable<string> GetTotpUrls();
     }
 }

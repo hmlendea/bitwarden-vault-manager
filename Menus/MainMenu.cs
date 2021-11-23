@@ -26,6 +26,7 @@ namespace BitwardenVaultManager.Menus
 
             AddCommand("get-email-addresses", "Gets all email addresses", () => GetEmailAddresses());
             AddCommand("get-email-address-usages", "Gets all the accounts that are associated with a given email address", () => GetEmailAddressUsages());
+            AddCommand("get-items-without-2fa", "Gets the list of items without 2-factor authentication", () => GetItemsWithout2FA());
             AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
             AddCommand("get-password-usages", "Gets all the accounts that use a given password", () => GetPasswordUsages());
             AddCommand("get-reused-passwords", "Gets the passwords that are reused across different accounts", () => GetReusedPasswords());
@@ -77,6 +78,20 @@ namespace BitwardenVaultManager.Menus
             NuciConsole.WriteLines(results);
         }
 
+        void GetItemsWithout2FA()
+        {
+            IEnumerable<BitwardenItem> items = vaultManager.GetItemsWithoutTotp();
+
+            if (!items.Any())
+            {
+                NuciConsole.WriteLine("All items are using 2-factor authentication, good job!", NuciConsoleColour.Green);
+                return;
+            }
+
+            NuciConsole.WriteLine($"There are '{items.Count()}' misconfigured items:");
+            NuciConsole.WriteLines(items.Select(item => $" - {item.Name}").OrderBy(x => x));
+        }
+
         void GetMisconfiguredItems()
         {
             IEnumerable<string> errors = vaultManager.GetMisconfiguredItems();
@@ -86,10 +101,8 @@ namespace BitwardenVaultManager.Menus
                 NuciConsole.WriteLine("All items are properly configured, good job!", NuciConsoleColour.Green);
                 return;
             }
-            else
-            {
-                NuciConsole.WriteLine($"There are '{errors.Count()}' misconfigured items:");
-            }
+            
+            NuciConsole.WriteLine($"There are '{errors.Count()}' misconfigured items:");
 
             foreach (string error in errors)
             {

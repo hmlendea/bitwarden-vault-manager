@@ -101,6 +101,13 @@ namespace BitwardenVaultManager.Service
                         item.Fields.First(x => x.Name.Equals(WeakPasswordFieldName)).Value.Equals(false.ToString(), StringComparison.InvariantCultureIgnoreCase)
                     ))
                 .Where(item => passwordChecker.GetPasswordStrength(item.Login.Password) < PasswordStrength.Strong);
+        
+        public IEnumerable<BitwardenItem> GetItemsWithoutTotp()
+            => vault.Items
+                .Where(item =>
+                    item.Type == BitwardenItemType.Login &&
+                    string.IsNullOrWhiteSpace(item.Login.TOTP))
+                .Where(item => passwordChecker.GetPasswordStrength(item.Login.Password) < PasswordStrength.Strong);
 
         public IEnumerable<string> GetTotpUrls()
             => vault.Items
