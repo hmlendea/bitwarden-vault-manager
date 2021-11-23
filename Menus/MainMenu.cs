@@ -103,11 +103,7 @@ namespace BitwardenVaultManager.Menus
             }
             
             NuciConsole.WriteLine($"There are '{errors.Count()}' misconfigured items:");
-
-            foreach (string error in errors)
-            {
-                NuciConsole.WriteLine(error, NuciConsoleColour.Red);
-            }
+            NuciConsole.WriteLines(errors, NuciConsoleColour.Red);
         }
 
         void GetPasswordUsages()
@@ -150,7 +146,6 @@ namespace BitwardenVaultManager.Menus
         void GetTotpUrls()
         {
             IEnumerable<string> urls = vaultManager.GetTotpUrls();
-
             NuciConsole.WriteLines(urls);
         }
 
@@ -176,13 +171,11 @@ namespace BitwardenVaultManager.Menus
         void GetWeakPasswords()
         {
             IEnumerable<BitwardenItem> items = vaultManager.GetItemsWithWeakPasswords();
-
-            foreach (string result in items
+            IEnumerable<string> lines = items
                 .Select(item => GetItemDescription(item))
-                .OrderBy(x => x))
-            {
-                NuciConsole.WriteLine(result, NuciConsoleColour.Red);
-            }
+                .OrderBy(x => x);
+
+            NuciConsole.WriteLines(lines, NuciConsoleColour.Red);
         }
 
         string GetItemDescription(BitwardenItem item)
