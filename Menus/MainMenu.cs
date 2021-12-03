@@ -26,8 +26,10 @@ namespace BitwardenVaultManager.Menus
 
             AddCommand("get-email-addresses", "Gets all email addresses", () => GetEmailAddresses());
             AddCommand("get-email-address-usages", "Gets all the accounts that are associated with a given email address", () => GetEmailAddressUsages());
+            AddCommand("get-items-by-password-length", "Gets the list of items that use passwords of the given length", () => GetItemsByPasswordLength());
             AddCommand("get-items-without-2fa", "Gets the list of items without 2-factor authentication", () => GetItemsWithout2FA());
             AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
+            AddCommand("get-password-lengths", "Gets the lengths of the passwords", () => GetPasswordLengths());
             AddCommand("get-password-usages", "Gets all the accounts that use a given password", () => GetPasswordUsages());
             AddCommand("get-reused-passwords", "Gets the passwords that are reused across different accounts", () => GetReusedPasswords());
             AddCommand("get-totp-urls", "Gets the TOTP association URLs for all the items that have them", () => GetTotpUrls());
@@ -78,6 +80,21 @@ namespace BitwardenVaultManager.Menus
             NuciConsole.WriteLines(results);
         }
 
+        void GetItemsByPasswordLength()
+        {
+            int length = int.Parse(NuciConsole.ReadLine("Password length: "));
+            IEnumerable<BitwardenItem> items = vaultManager.GetItemsByPasswordLength(length);
+
+            if (!items.Any())
+            {
+                NuciConsole.WriteLine("All items are using 2-factor authentication, good job!", NuciConsoleColour.Green);
+                return;
+            }
+
+            NuciConsole.WriteLine($"There are '{items.Count()}' items that use {length} character long passwords:");
+            NuciConsole.WriteLines(items.Select(item => $" - {item.Name}").OrderBy(x => x));
+        }
+
         void GetItemsWithout2FA()
         {
             IEnumerable<BitwardenItem> items = vaultManager.GetItemsWithoutTotp();
@@ -104,6 +121,23 @@ namespace BitwardenVaultManager.Menus
             
             NuciConsole.WriteLine($"There are '{errors.Count()}' misconfigured items:");
             NuciConsole.WriteLines(errors, NuciConsoleColour.Red);
+        }
+
+        void GetPasswordLengths()
+        {
+            IEnumerable<string> passwords = vaultManager.GetPasswords();
+            IDictionary<int, int> results = passwords
+                .GroupBy(password => password.Length)
+                .OrderByDescending(x => x.Key)
+                .ToDictionary(x => x.Key, x => x.Count());
+
+            if (!results.Any())
+            {
+                NuciConsole.WriteLine("There are no logins!");
+                return;
+            }
+            
+            NuciConsole.WriteLines(results.Select(x => $"{x.Key} ({x.Value} logins)"));
         }
 
         void GetPasswordUsages()
