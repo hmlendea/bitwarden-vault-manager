@@ -31,6 +31,7 @@ namespace BitwardenVaultManager.Menus
             AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
             AddCommand("get-password-lengths", "Gets the lengths of the passwords", () => GetPasswordLengths());
             AddCommand("get-password-usages", "Gets all the accounts that use a given password", () => GetPasswordUsages());
+            AddCommand("get-passwords-containing", "Gets the passwords that contain a given text", () => GetPasswordsContaining());
             AddCommand("get-reused-passwords", "Gets the passwords that are reused across different accounts", () => GetReusedPasswords());
             AddCommand("get-totp-urls", "Gets the TOTP association URLs for all the items that have them", () => GetTotpUrls());
             AddCommand("get-username-usages", "Gets all the accounts that use a given username", () => GetUsernameUsages());
@@ -87,7 +88,7 @@ namespace BitwardenVaultManager.Menus
 
             if (!items.Any())
             {
-                NuciConsole.WriteLine("All items are using 2-factor authentication, good job!", NuciConsoleColour.Green);
+                NuciConsole.WriteLine($"There are no items that use {length} character long passwords!");
                 return;
             }
 
@@ -156,6 +157,25 @@ namespace BitwardenVaultManager.Menus
             }
 
             NuciConsole.WriteLine($"The '{password}' password is associated with {results.Count} items:");
+            NuciConsole.WriteLines(results);
+        }
+
+        void GetPasswordsContaining()
+        {
+            string text = NuciConsole.ReadLine("Text: ");
+            IEnumerable<BitwardenItem> items = vaultManager.GetItemsByPasswordContaining(text);
+            IList<string> results = items
+                .Select(item => $" - {GetItemDescription(item)}")
+                .OrderBy(x => x)
+                .ToList();
+
+            if (!results.Any())
+            {
+                NuciConsole.WriteLine("There are no logins that use passwords containing the provided text!");
+                return;
+            }
+
+            NuciConsole.WriteLine($"The text '{text}' is used in {results.Count} passwords:");
             NuciConsole.WriteLines(results);
         }
 

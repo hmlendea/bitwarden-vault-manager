@@ -83,6 +83,13 @@ namespace BitwardenVaultManager.Service
                     !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
                     item.Login.Password.Equals(password, StringComparison.InvariantCulture));
 
+        public IEnumerable<BitwardenItem> GetItemsByPasswordContaining(string text)
+            => vault.Items
+                .Where(item =>
+                    item.Type == BitwardenItemType.Login &&
+                    !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
+                    item.Login.Password.Contains(text, StringComparison.InvariantCulture));
+
         public IEnumerable<BitwardenItem> GetItemsByPasswordLength(int length)
             => vault.Items
                 .Where(item =>
