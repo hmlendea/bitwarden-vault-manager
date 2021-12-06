@@ -84,30 +84,36 @@ namespace BitwardenVaultManager.Menus
         void GetItemsByPasswordLength()
         {
             int length = int.Parse(NuciConsole.ReadLine("Password length: "));
-            IEnumerable<BitwardenItem> items = vaultManager.GetItemsByPasswordLength(length);
+            IEnumerable<string> results = vaultManager
+                .GetItemsByPasswordLength(length)
+                .Select(item => $" - {GetItemDescription(item)}")
+                .OrderBy(x => x);
 
-            if (!items.Any())
+            if (!results.Any())
             {
                 NuciConsole.WriteLine($"There are no items that use {length} character long passwords!");
                 return;
             }
 
-            NuciConsole.WriteLine($"There are '{items.Count()}' items that use {length} character long passwords:");
-            NuciConsole.WriteLines(items.Select(item => $" - {item.Name}").OrderBy(x => x));
+            NuciConsole.WriteLine($"There are '{results.Count()}' items that use {length} character long passwords:");
+            NuciConsole.WriteLines(results);
         }
 
         void GetItemsWithout2FA()
         {
-            IEnumerable<BitwardenItem> items = vaultManager.GetItemsWithoutTotp();
+            IEnumerable<string> results = vaultManager
+                .GetItemsWithoutTotp()
+                .Select(item => $" - {GetItemDescription(item)}")
+                .OrderBy(x => x);
 
-            if (!items.Any())
+            if (!results.Any())
             {
                 NuciConsole.WriteLine("All items are using 2-factor authentication, good job!", NuciConsoleColour.Green);
                 return;
             }
 
-            NuciConsole.WriteLine($"There are '{items.Count()}' misconfigured items:");
-            NuciConsole.WriteLines(items.Select(item => $" - {item.Name}").OrderBy(x => x));
+            NuciConsole.WriteLine($"There are '{results.Count()}' misconfigured items:");
+            NuciConsole.WriteLines(results);
         }
 
         void GetMisconfiguredItems()
