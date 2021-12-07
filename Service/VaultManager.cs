@@ -83,6 +83,20 @@ namespace BitwardenVaultManager.Service
                     !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
                     item.Login.Password.Equals(password, StringComparison.InvariantCulture));
 
+        public IEnumerable<BitwardenItem> GetItemsByPasswordContaining(string text)
+            => vault.Items
+                .Where(item =>
+                    item.Type == BitwardenItemType.Login &&
+                    !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
+                    item.Login.Password.Contains(text, StringComparison.InvariantCulture));
+
+        public IEnumerable<BitwardenItem> GetItemsByPasswordLength(int length)
+            => vault.Items
+                .Where(item =>
+                    item.Type == BitwardenItemType.Login &&
+                    !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
+                    item.Login.Password.Length.Equals(length));
+
         public IEnumerable<BitwardenItem> GetItemsByUsername(string username)
             => vault.Items
                 .Where(item =>
@@ -100,6 +114,13 @@ namespace BitwardenVaultManager.Service
                         item.Fields.All(x => !x.Name.Equals(WeakPasswordFieldName)) ||
                         item.Fields.First(x => x.Name.Equals(WeakPasswordFieldName)).Value.Equals(false.ToString(), StringComparison.InvariantCultureIgnoreCase)
                     ))
+                .Where(item => passwordChecker.GetPasswordStrength(item.Login.Password) < PasswordStrength.Strong);
+        
+        public IEnumerable<BitwardenItem> GetItemsWithoutTotp()
+            => vault.Items
+                .Where(item =>
+                    item.Type == BitwardenItemType.Login &&
+                    string.IsNullOrWhiteSpace(item.Login.TOTP))
                 .Where(item => passwordChecker.GetPasswordStrength(item.Login.Password) < PasswordStrength.Strong);
 
         public IEnumerable<string> GetTotpUrls()

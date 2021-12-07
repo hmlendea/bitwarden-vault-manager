@@ -26,8 +26,12 @@ namespace BitwardenVaultManager.Menus
 
             AddCommand("get-email-addresses", "Gets all email addresses", () => GetEmailAddresses());
             AddCommand("get-email-address-usages", "Gets all the accounts that are associated with a given email address", () => GetEmailAddressUsages());
+            AddCommand("get-items-by-password-length", "Gets the list of items that use passwords of the given length", () => GetItemsByPasswordLength());
+            AddCommand("get-items-without-2fa", "Gets the list of items without 2-factor authentication", () => GetItemsWithout2FA());
             AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
+            AddCommand("get-password-lengths", "Gets the lengths of the passwords", () => GetPasswordLengths());
             AddCommand("get-password-usages", "Gets all the accounts that use a given password", () => GetPasswordUsages());
+            AddCommand("get-passwords-containing", "Gets the passwords that contain a given text", () => GetPasswordsContaining());
             AddCommand("get-reused-passwords", "Gets the passwords that are reused across different accounts", () => GetReusedPasswords());
             AddCommand("get-totp-urls", "Gets the TOTP association URLs for all the items that have them", () => GetTotpUrls());
             AddCommand("get-username-usages", "Gets all the accounts that use a given username", () => GetUsernameUsages());
@@ -77,6 +81,41 @@ namespace BitwardenVaultManager.Menus
             NuciConsole.WriteLines(results);
         }
 
+        void GetItemsByPasswordLength()
+        {
+            int length = int.Parse(NuciConsole.ReadLine("Password length: "));
+            IEnumerable<string> results = vaultManager
+                .GetItemsByPasswordLength(length)
+                .Select(item => $" - {GetItemDescription(item)}")
+                .OrderBy(x => x);
+
+            if (!results.Any())
+            {
+                NuciConsole.WriteLine($"There are no items that use {length} character long passwords!");
+                return;
+            }
+
+            NuciConsole.WriteLine($"There are '{results.Count()}' items that use {length} character long passwords:");
+            NuciConsole.WriteLines(results);
+        }
+
+        void GetItemsWithout2FA()
+        {
+            IEnumerable<string> results = vaultManager
+                .GetItemsWithoutTotp()
+                .Select(item => $" - {GetItemDescription(item)}")
+                .OrderBy(x => x);
+
+            if (!results.Any())
+            {
+                NuciConsole.WriteLine("All items are using 2-factor authentication, good job!", NuciConsoleColour.Green);
+                return;
+            }
+
+            NuciConsole.WriteLine($"There are '{results.Count()}' misconfigured items:");
+            NuciConsole.WriteLines(results);
+        }
+
         void GetMisconfiguredItems()
         {
             IEnumerable<string> errors = vaultManager.GetMisconfiguredItems();
@@ -86,15 +125,26 @@ namespace BitwardenVaultManager.Menus
                 NuciConsole.WriteLine("All items are properly configured, good job!", NuciConsoleColour.Green);
                 return;
             }
-            else
-            {
-                NuciConsole.WriteLine($"There are '{errors.Count()}' misconfigured items:");
-            }
+            
+            NuciConsole.WriteLine($"There are '{errors.Count()}' misconfigured items:");
+            NuciConsole.WriteLines(errors, NuciConsoleColour.Red);
+        }
 
-            foreach (string error in errors)
+        void GetPasswordLengths()
+        {
+            IEnumerable<string> passwords = vaultManager.GetPasswords();
+            IDictionary<int, int> results = passwords
+                .GroupBy(password => password.Length)
+                .OrderByDescending(x => x.Key)
+                .ToDictionary(x => x.Key, x => x.Count());
+
+            if (!results.Any())
             {
-                NuciConsole.WriteLine(error, NuciConsoleColour.Red);
+                NuciConsole.WriteLine("There are no logins!");
+                return;
             }
+            
+            NuciConsole.WriteLines(results.Select(x => $"{x.Key} ({x.Value} logins)"));
         }
 
         void GetPasswordUsages()
@@ -113,6 +163,25 @@ namespace BitwardenVaultManager.Menus
             }
 
             NuciConsole.WriteLine($"The '{password}' password is associated with {results.Count} items:");
+            NuciConsole.WriteLines(results);
+        }
+
+        void GetPasswordsContaining()
+        {
+            string text = NuciConsole.ReadLine("Text: ");
+            IEnumerable<BitwardenItem> items = vaultManager.GetItemsByPasswordContaining(text);
+            IList<string> results = items
+                .Select(item => $" - {GetItemDescription(item)}")
+                .OrderBy(x => x)
+                .ToList();
+
+            if (!results.Any())
+            {
+                NuciConsole.WriteLine("There are no logins that use passwords containing the provided text!");
+                return;
+            }
+
+            NuciConsole.WriteLine($"The text '{text}' is used in {results.Count} passwords:");
             NuciConsole.WriteLines(results);
         }
 
@@ -137,7 +206,6 @@ namespace BitwardenVaultManager.Menus
         void GetTotpUrls()
         {
             IEnumerable<string> urls = vaultManager.GetTotpUrls();
-
             NuciConsole.WriteLines(urls);
         }
 
@@ -163,13 +231,11 @@ namespace BitwardenVaultManager.Menus
         void GetWeakPasswords()
         {
             IEnumerable<BitwardenItem> items = vaultManager.GetItemsWithWeakPasswords();
-
-            foreach (string result in items
+            IEnumerable<string> lines = items
                 .Select(item => GetItemDescription(item))
-                .OrderBy(x => x))
-            {
-                NuciConsole.WriteLine(result, NuciConsoleColour.Red);
-            }
+                .OrderBy(x => x);
+
+            NuciConsole.WriteLines(lines, NuciConsoleColour.Red);
         }
 
         string GetItemDescription(BitwardenItem item)
