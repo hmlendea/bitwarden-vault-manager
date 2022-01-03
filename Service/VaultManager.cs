@@ -138,10 +138,12 @@ namespace BitwardenVaultManager.Service
         {
             string method = "totp";
             int digits = 6;
+            int period = 30;
 
             if (item.Name.Contains("Gemini", StringComparison.InvariantCultureIgnoreCase))
             {
                 digits = 7;
+                period = 10;
             }
             else if (item.Name.Contains("Battle.net", StringComparison.InvariantCultureIgnoreCase) ||
                      item.Name.Contains("Blizzard", StringComparison.InvariantCultureIgnoreCase))
@@ -154,7 +156,7 @@ namespace BitwardenVaultManager.Service
                 digits = 5;
             }
 
-            string rawUrl = $"otpauth://{method}/{item.Name}:{item.Username}:?secret={item.Login.TOTP}&digits={digits}&issuer={item.Name}";
+            string rawUrl = $"otpauth://{method}/{item.Name}:{item.Username}:?secret={item.Login.TOTP}&digits={digits}&period={period}&issuer={item.Name}";
             
             return Uri.EscapeUriString(rawUrl);
         }
