@@ -13,6 +13,8 @@ namespace BitwardenVaultManager.Service
 
         string GetFolderName(Guid folderId);
 
+        IEnumerable<string> GetUsernames();
+
         IEnumerable<string> GetEmailAddresses();
 
         IEnumerable<string> GetPasswords();

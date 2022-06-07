@@ -34,6 +34,7 @@ namespace BitwardenVaultManager.Menus
             AddCommand("get-passwords-containing", "Gets the passwords that contain a given text", () => GetPasswordsContaining());
             AddCommand("get-reused-passwords", "Gets the passwords that are reused across different accounts", () => GetReusedPasswords());
             AddCommand("get-totp-urls", "Gets the TOTP association URLs for all the items that have them", () => GetTotpUrls());
+            AddCommand("get-usernames", "Gets all the unique usernames", () => GetUsernames());
             AddCommand("get-username-usages", "Gets all the accounts that use a given username", () => GetUsernameUsages());
             AddCommand("get-weak-passwords", "Gets all weak passwords", () => GetWeakPasswords());
         }
@@ -48,7 +49,7 @@ namespace BitwardenVaultManager.Menus
                 NuciConsole.WriteLine("There are no email addresses associated with any item!");
                 return;
             }
-            
+
             NuciConsole.WriteLine($"There are {emailAddressUsages.Count} email addresses:");
 
             foreach (string emailAddress in emailAddresses)
@@ -76,7 +77,7 @@ namespace BitwardenVaultManager.Menus
                 NuciConsole.WriteLine("There are no logins associated with the provided email address!");
                 return;
             }
-            
+
             NuciConsole.WriteLine($"The '{emailAddress}' email address is associated with {results.Count} items:");
             NuciConsole.WriteLines(results);
         }
@@ -125,7 +126,7 @@ namespace BitwardenVaultManager.Menus
                 NuciConsole.WriteLine("All items are properly configured, good job!", NuciConsoleColour.Green);
                 return;
             }
-            
+
             NuciConsole.WriteLine($"There are '{errors.Count()}' misconfigured items:");
             NuciConsole.WriteLines(errors, NuciConsoleColour.Red);
         }
@@ -143,7 +144,7 @@ namespace BitwardenVaultManager.Menus
                 NuciConsole.WriteLine("There are no logins!");
                 return;
             }
-            
+
             NuciConsole.WriteLines(results.Select(x => $"{x.Key} ({x.Value} logins)"));
         }
 
@@ -209,6 +210,30 @@ namespace BitwardenVaultManager.Menus
             NuciConsole.WriteLines(urls);
         }
 
+        void GetUsernames()
+        {
+            IEnumerable<string> usernames = vaultManager.GetUsernames();
+            IDictionary<string, int> usernameUsageCounts = usernames.ToDictionary(x => x, x => 0);
+
+            if (!usernames.Any())
+            {
+                NuciConsole.WriteLine("There are no usernames associated with any item!");
+                return;
+            }
+
+            NuciConsole.WriteLine($"There are {usernameUsageCounts.Count} usernames:");
+
+            foreach (string username in usernames)
+            {
+                usernameUsageCounts[username] = vaultManager.GetItemsByUsername(username).Count();
+            }
+
+            foreach (string username in usernameUsageCounts.Keys.OrderByDescending(x => usernameUsageCounts[x]).ThenBy(x => x))
+            {
+                NuciConsole.WriteLine($"{username} ({usernameUsageCounts[username]} accounts)");
+            }
+        }
+
         void GetUsernameUsages()
         {
             string username = NuciConsole.ReadLine("Username: ");
@@ -257,7 +282,7 @@ namespace BitwardenVaultManager.Menus
             {
                 itemDescription += $" - {item.Login.Username}";
             }
-            
+
             return itemDescription;
         }
     }

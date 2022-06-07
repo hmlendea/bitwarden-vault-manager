@@ -29,13 +29,13 @@ namespace BitwardenVaultManager.Service.Models
         {
             get
             {
-                if (!(Fields is null) &&
-                    Fields.Any(field => field.Name.Equals(EmailAddressFieldName)))
+                if (Fields is not null &&
+                    Fields.Any(field => EmailAddressFieldName.Equals(field.Name)))
                 {
                     return Fields.FirstOrDefault(field => field.Name == EmailAddressFieldName).Value;
                 }
 
-                if (!(Login is null) &&
+                if (Login is not null &&
                     !string.IsNullOrWhiteSpace(Login.Username) &&
                     Login.Username.Contains('@'))
                 {
@@ -50,13 +50,13 @@ namespace BitwardenVaultManager.Service.Models
         {
             get
             {
-                if (!(Fields is null) &&
-                    Fields.Any(field => field.Name.Equals(UsernameFieldName)))
+                if (Fields is not null &&
+                    Fields.Any(field => UsernameFieldName.Equals(field.Name)))
                 {
-                    return Fields.FirstOrDefault(field => field.Name == UsernameFieldName).Value;
+                    return Fields.First(field => UsernameFieldName.Equals(field.Name)).Value;
                 }
 
-                if (!(Login is null) &&
+                if (Login is not null &&
                     !string.IsNullOrWhiteSpace(Login.Username))
                 {
                     return Login.Username;
