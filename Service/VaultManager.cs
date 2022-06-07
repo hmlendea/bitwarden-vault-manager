@@ -22,7 +22,7 @@ namespace BitwardenVaultManager.Service
                 new BitwardenVaultFileHandler(),
                 new PasswordChecker())
         {
-            
+
         }
 
         public VaultManager(
@@ -55,6 +55,12 @@ namespace BitwardenVaultManager.Service
 
         public string GetFolderName(Guid folderId)
             => vault.Folders.FirstOrDefault(folder => folder.Id.Equals(folderId))?.Name;
+
+        public IEnumerable<string> GetUsernames()
+            => vault.Items
+                .Where(item => !string.IsNullOrWhiteSpace(item.Username))
+                .GroupBy(item => item.Username.ToLowerInvariant())
+                .Select(group => group.First().Username);
 
         public IEnumerable<string> GetEmailAddresses()
             => vault.Items
@@ -101,9 +107,9 @@ namespace BitwardenVaultManager.Service
             => vault.Items
                 .Where(item =>
                     item.Type == BitwardenItemType.Login &&
-                    !(string.IsNullOrWhiteSpace(item.Login.Username)) &&
-                    item.Login.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase));
-        
+                    !(string.IsNullOrWhiteSpace(item.Username)) &&
+                    item.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase));
+
         public IEnumerable<BitwardenItem> GetItemsWithWeakPasswords()
             => vault.Items
                 .Where(item =>
@@ -115,7 +121,7 @@ namespace BitwardenVaultManager.Service
                         item.Fields.First(x => x.Name.Equals(WeakPasswordFieldName)).Value.Equals(false.ToString(), StringComparison.InvariantCultureIgnoreCase)
                     ))
                 .Where(item => passwordChecker.GetPasswordStrength(item.Login.Password) < PasswordStrength.Strong);
-        
+
         public IEnumerable<BitwardenItem> GetItemsWithoutTotp()
             => vault.Items
                 .Where(item =>
@@ -157,7 +163,7 @@ namespace BitwardenVaultManager.Service
             }
 
             string rawUrl = $"otpauth://{method}/{item.Name}:{item.Username}:?secret={item.Login.TOTP}&digits={digits}&period={period}&issuer={item.Name}";
-            
+
             return Uri.EscapeUriString(rawUrl);
         }
     }
