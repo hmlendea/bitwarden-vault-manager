@@ -6,8 +6,10 @@ namespace BitwardenVaultManager.Service.Models
 {
     public sealed class BitwardenItem
     {
-        static string EmailAddressFieldName => "Email Address";
         static string UsernameFieldName => "Username";
+
+        static string[] EmailAddressFieldNames => new string[]
+        { "Email Address", "Email", "email", "login_email", "sign_in_email" };
 
         public Guid Id { get; set; }
 
@@ -29,10 +31,17 @@ namespace BitwardenVaultManager.Service.Models
         {
             get
             {
-                if (Fields is not null &&
-                    Fields.Any(field => EmailAddressFieldName.Equals(field.Name)))
+                if (Fields is not null)
                 {
-                    return Fields.FirstOrDefault(field => field.Name == EmailAddressFieldName).Value;
+                    foreach (string fieldName in EmailAddressFieldNames)
+                    {
+                        BitwardenField field = Fields.FirstOrDefault(f => f.Name.Equals(fieldName));
+
+                        if (field is not null)
+                        {
+                            return field.Value;
+                        }
+                    }
                 }
 
                 if (Login is not null &&
