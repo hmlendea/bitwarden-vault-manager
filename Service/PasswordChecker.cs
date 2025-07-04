@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
- 
+
 namespace BitwardenVaultManager.Service
 {
     public sealed class PasswordChecker : IPasswordChecker
@@ -49,31 +49,31 @@ namespace BitwardenVaultManager.Service
                 strength += 1;
             }
 
-            if (password.Any(c => char.IsUpper(c)) &&
-                password.Any(c => char.IsLower(c)))
+            if (password.Any(char.IsUpper) &&
+                password.Any(char.IsLower))
             {
                 strength += 1;
             }
-            if (password.Where(c => char.IsUpper(c)).Count() >= RecommendedUppercaseLettersCount &&
-                password.Where(c => char.IsLower(c)).Count() >= RecommendedLowercaseLettersCount)
-            {
-                strength += 1;
-            }
-
-            if (password.Any(c => char.IsDigit(c)))
-            {
-                strength += 1;
-            }
-            if (password.Where(c => char.IsDigit(c)).Count() >= RecommendedDigitsCount)
+            if (password.Where(char.IsUpper).Count() >= RecommendedUppercaseLettersCount &&
+                password.Where(char.IsLower).Count() >= RecommendedLowercaseLettersCount)
             {
                 strength += 1;
             }
 
-            if (password.Any(c => "!@#$%^&*?_~-£().,".Contains(c)))
+            if (password.Any(char.IsDigit))
             {
                 strength += 1;
             }
-            if (password.Where(c => "!@#$%^&*?_~-£().,".Contains(c)).Count() >= RecommendedSymbolsCount)
+            if (password.Where(char.IsDigit).Count() >= RecommendedDigitsCount)
+            {
+                strength += 1;
+            }
+
+            if (password.Any("!@#$%^&*?_~-£().,".Contains))
+            {
+                strength += 1;
+            }
+            if (password.Where("!@#$%^&*?_~-£().,".Contains).Count() >= RecommendedSymbolsCount)
             {
                 strength += 1;
             }

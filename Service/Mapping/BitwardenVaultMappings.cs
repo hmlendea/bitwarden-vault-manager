@@ -8,38 +8,24 @@ namespace BitwardenVaultManager.Service.Mapping
 {
     static class BitwardenVaultMappings
     {
-        internal static BitwardenVault ToServiceModel(this BitwardenVaultEntity dataObject)
+        internal static BitwardenVault ToServiceModel(this BitwardenVaultEntity dataObject) => new()
         {
-            BitwardenVault serviceModel = new BitwardenVault();
-            serviceModel.IsEncrypted = dataObject.Encrypted;
-            serviceModel.Folders = dataObject.Folders.ToServiceModels().ToList();
-            serviceModel.Items = dataObject.Items.ToServiceModels().ToList();
+            IsEncrypted = dataObject.Encrypted,
+            Folders = dataObject.Folders.ToServiceModels().ToList(),
+            Items = dataObject.Items.ToServiceModels().ToList()
+        };
 
-            return serviceModel;
-        }
-
-        internal static BitwardenVaultEntity ToDataObject(this BitwardenVault serviceModel)
+        internal static BitwardenVaultEntity ToDataObject(this BitwardenVault serviceModel) => new()
         {
-            BitwardenVaultEntity dataObject = new BitwardenVaultEntity();
-            dataObject.Encrypted = serviceModel.IsEncrypted;
-            dataObject.Folders = serviceModel.Folders.ToDataObjects().ToList();
-            dataObject.Items = serviceModel.Items.ToDataObjects().ToList();
-
-            return dataObject;
-        }
+            Encrypted = serviceModel.IsEncrypted,
+            Folders = serviceModel.Folders.ToDataObjects().ToList(),
+            Items = serviceModel.Items.ToDataObjects().ToList()
+        };
 
         internal static IEnumerable<BitwardenVault> ToServiceModels(this IEnumerable<BitwardenVaultEntity> dataObjects)
-        {
-            IEnumerable<BitwardenVault> serviceModels = dataObjects.Select(dataObject => dataObject.ToServiceModel());
-
-            return serviceModels;
-        }
+            => dataObjects.Select(dataObject => dataObject.ToServiceModel());
 
         internal static IEnumerable<BitwardenVaultEntity> ToDataObjects(this IEnumerable<BitwardenVault> serviceModels)
-        {
-            IEnumerable<BitwardenVaultEntity> dataObjects = serviceModels.Select(serviceModel => serviceModel.ToDataObject());
-
-            return dataObjects;
-        }
+            => serviceModels.Select(serviceModel => serviceModel.ToDataObject());
     }
 }

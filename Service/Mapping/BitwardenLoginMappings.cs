@@ -8,38 +8,24 @@ namespace BitwardenVaultManager.Service.Mapping
 {
     static class BitwardenLoginMappings
     {
-        internal static BitwardenLogin ToServiceModel(this BitwardenLoginEntity dataObject)
+        internal static BitwardenLogin ToServiceModel(this BitwardenLoginEntity dataObject) => new()
         {
-            BitwardenLogin serviceModel = new BitwardenLogin();
-            serviceModel.Username = dataObject.Username;
-            serviceModel.Password = dataObject.Password;
-            serviceModel.TOTP = dataObject.TOTP;
+            Username = dataObject.Username,
+            Password = dataObject.Password,
+            TOTP = dataObject.TOTP
+        };
 
-            return serviceModel;
-        }
-
-        internal static BitwardenLoginEntity ToDataObject(this BitwardenLogin serviceModel)
+        internal static BitwardenLoginEntity ToDataObject(this BitwardenLogin serviceModel) => new()
         {
-            BitwardenLoginEntity dataObject = new BitwardenLoginEntity();
-            dataObject.Username = serviceModel.Username;
-            dataObject.Password = serviceModel.Password;
-            dataObject.TOTP = serviceModel.TOTP;
-
-            return dataObject;
-        }
+            Username = serviceModel.Username,
+            Password = serviceModel.Password,
+            TOTP = serviceModel.TOTP
+        };
 
         internal static IEnumerable<BitwardenLogin> ToServiceModels(this IEnumerable<BitwardenLoginEntity> dataObjects)
-        {
-            IEnumerable<BitwardenLogin> serviceModels = dataObjects.Select(dataObject => dataObject.ToServiceModel());
-
-            return serviceModels;
-        }
+            => dataObjects.Select(dataObject => dataObject.ToServiceModel());
 
         internal static IEnumerable<BitwardenLoginEntity> ToDataObjects(this IEnumerable<BitwardenLogin> serviceModels)
-        {
-            IEnumerable<BitwardenLoginEntity> dataObjects = serviceModels.Select(serviceModel => serviceModel.ToDataObject());
-
-            return dataObjects;
-        }
+            => serviceModels.Select(serviceModel => serviceModel.ToDataObject());
     }
 }

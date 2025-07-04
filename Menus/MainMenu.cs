@@ -24,19 +24,19 @@ namespace BitwardenVaultManager.Menus
             vaultManager = new VaultManager();
             vaultManager.Load(Program.VaultFilePath);
 
-            AddCommand("get-email-addresses", "Gets all email addresses", () => GetEmailAddresses());
-            AddCommand("get-email-address-usages", "Gets all the accounts that are associated with a given email address", () => GetEmailAddressUsages());
-            AddCommand("get-items-by-password-length", "Gets the list of items that use passwords of the given length", () => GetItemsByPasswordLength());
-            AddCommand("get-items-without-2fa", "Gets the list of items without 2-factor authentication", () => GetItemsWithout2FA());
-            AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", () => GetMisconfiguredItems());
-            AddCommand("get-password-lengths", "Gets the lengths of the passwords", () => GetPasswordLengths());
-            AddCommand("get-password-usages", "Gets all the accounts that use a given password", () => GetPasswordUsages());
-            AddCommand("get-passwords-containing", "Gets the passwords that contain a given text", () => GetPasswordsContaining());
-            AddCommand("get-reused-passwords", "Gets the passwords that are reused across different accounts", () => GetReusedPasswords());
-            AddCommand("get-totp-urls", "Gets the TOTP association URLs for all the items that have them", () => GetTotpUrls());
-            AddCommand("get-usernames", "Gets all the unique usernames", () => GetUsernames());
-            AddCommand("get-username-usages", "Gets all the accounts that use a given username", () => GetUsernameUsages());
-            AddCommand("get-weak-passwords", "Gets all weak passwords", () => GetWeakPasswords());
+            AddCommand("get-email-addresses", "Gets all email addresses", GetEmailAddresses);
+            AddCommand("get-email-address-usages", "Gets all the accounts that are associated with a given email address", GetEmailAddressUsages);
+            AddCommand("get-items-by-password-length", "Gets the list of items that use passwords of the given length", GetItemsByPasswordLength);
+            AddCommand("get-items-without-2fa", "Gets the list of items without 2-factor authentication", GetItemsWithout2FA);
+            AddCommand("get-misconfigured-items", "Gets the list of errors for misconfigured items", GetMisconfiguredItems);
+            AddCommand("get-password-lengths", "Gets the lengths of the passwords", GetPasswordLengths);
+            AddCommand("get-password-usages", "Gets all the accounts that use a given password", GetPasswordUsages);
+            AddCommand("get-passwords-containing", "Gets the passwords that contain a given text", GetPasswordsContaining);
+            AddCommand("get-reused-passwords", "Gets the passwords that are reused across different accounts", GetReusedPasswords);
+            AddCommand("get-totp-urls", "Gets the TOTP association URLs for all the items that have them", GetTotpUrls);
+            AddCommand("get-usernames", "Gets all the unique usernames", GetUsernames);
+            AddCommand("get-username-usages", "Gets all the accounts that use a given username", GetUsernameUsages);
+            AddCommand("get-weak-passwords", "Gets all weak passwords", GetWeakPasswords);
         }
 
         void GetEmailAddresses()
@@ -200,7 +200,7 @@ namespace BitwardenVaultManager.Menus
                 }
 
                 NuciConsole.WriteLine("The password '" + password + "' is reused accross " + items.Count + " accounts:", NuciConsoleColour.Red);
-                NuciConsole.WriteLines(items.Select(item => GetItemDescription(item)));
+                NuciConsole.WriteLines(items.Select(GetItemDescription));
             }
         }
 
@@ -257,7 +257,7 @@ namespace BitwardenVaultManager.Menus
         {
             IEnumerable<BitwardenItem> items = vaultManager.GetItemsWithWeakPasswords();
             IEnumerable<string> lines = items
-                .Select(item => GetItemDescription(item))
+                .Select(GetItemDescription)
                 .OrderBy(x => x);
 
             NuciConsole.WriteLines(lines, NuciConsoleColour.Red);

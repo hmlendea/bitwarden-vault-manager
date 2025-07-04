@@ -11,10 +11,12 @@ namespace BitwardenVaultManager.Service.Mapping
     {
         internal static BitwardenItem ToServiceModel(this BitwardenItemEntity dataObject)
         {
-            BitwardenItem serviceModel = new BitwardenItem();
-            serviceModel.Id = Guid.Parse(dataObject.Id);
-            serviceModel.Type = (BitwardenItemType)dataObject.Type;
-            serviceModel.Name = dataObject.Name;
+            BitwardenItem serviceModel = new()
+            {
+                Id = Guid.Parse(dataObject.Id),
+                Type = (BitwardenItemType)dataObject.Type,
+                Name = dataObject.Name
+            };
 
             if (!string.IsNullOrWhiteSpace(dataObject.FolderId))
             {
@@ -37,33 +39,22 @@ namespace BitwardenVaultManager.Service.Mapping
             return serviceModel;
         }
 
-        internal static BitwardenItemEntity ToDataObject(this BitwardenItem serviceModel)
+        internal static BitwardenItemEntity ToDataObject(this BitwardenItem serviceModel) => new()
         {
-            BitwardenItemEntity dataObject = new BitwardenItemEntity();
-            dataObject.Id = serviceModel.Id.ToString();
-            dataObject.Type = (int)serviceModel.Type;
-            dataObject.Name = serviceModel.Name;
-            dataObject.FolderId = serviceModel.FolderId.ToString();
-            dataObject.Favourite = serviceModel.IsFavourite;
-            dataObject.Notes = serviceModel.Notes;
-            dataObject.Login = serviceModel.Login.ToDataObject();
-            dataObject.Fields = serviceModel.Fields.ToDataObjects();
-
-            return dataObject;
-        }
+            Id = serviceModel.Id.ToString(),
+            Type = (int)serviceModel.Type,
+            Name = serviceModel.Name,
+            FolderId = serviceModel.FolderId.ToString(),
+            Favourite = serviceModel.IsFavourite,
+            Notes = serviceModel.Notes,
+            Login = serviceModel.Login.ToDataObject(),
+            Fields = serviceModel.Fields.ToDataObjects()
+        };
 
         internal static IEnumerable<BitwardenItem> ToServiceModels(this IEnumerable<BitwardenItemEntity> dataObjects)
-        {
-            IEnumerable<BitwardenItem> serviceModels = dataObjects.Select(dataObject => dataObject.ToServiceModel());
-
-            return serviceModels;
-        }
+            => dataObjects.Select(dataObject => dataObject.ToServiceModel());
 
         internal static IEnumerable<BitwardenItemEntity> ToDataObjects(this IEnumerable<BitwardenItem> serviceModels)
-        {
-            IEnumerable<BitwardenItemEntity> dataObjects = serviceModels.Select(serviceModel => serviceModel.ToDataObject());
-
-            return dataObjects;
-        }
+            => serviceModels.Select(serviceModel => serviceModel.ToDataObject());
     }
 }
