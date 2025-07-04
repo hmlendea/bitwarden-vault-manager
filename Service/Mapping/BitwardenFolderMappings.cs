@@ -9,36 +9,22 @@ namespace BitwardenVaultManager.Service.Mapping
 {
     static class BitwardenFolderMappings
     {
-        internal static BitwardenFolder ToServiceModel(this BitwardenFolderEntity dataObject)
+        internal static BitwardenFolder ToServiceModel(this BitwardenFolderEntity dataObject) => new()
         {
-            BitwardenFolder serviceModel = new BitwardenFolder();
-            serviceModel.Id = Guid.Parse(dataObject.Id);
-            serviceModel.Name = dataObject.Name;
+            Id = Guid.Parse(dataObject.Id),
+            Name = dataObject.Name
+        };
 
-            return serviceModel;
-        }
-
-        internal static BitwardenFolderEntity ToDataObject(this BitwardenFolder serviceModel)
+        internal static BitwardenFolderEntity ToDataObject(this BitwardenFolder serviceModel) => new()
         {
-            BitwardenFolderEntity dataObject = new BitwardenFolderEntity();
-            dataObject.Id = serviceModel.Id.ToString();
-            dataObject.Name = serviceModel.Name;
-
-            return dataObject;
-        }
+            Id = serviceModel.Id.ToString(),
+            Name = serviceModel.Name
+        };
 
         internal static IEnumerable<BitwardenFolder> ToServiceModels(this IEnumerable<BitwardenFolderEntity> dataObjects)
-        {
-            IEnumerable<BitwardenFolder> serviceModels = dataObjects.Select(dataObject => dataObject.ToServiceModel());
-
-            return serviceModels;
-        }
+            => dataObjects.Select(dataObject => dataObject.ToServiceModel());
 
         internal static IEnumerable<BitwardenFolderEntity> ToDataObjects(this IEnumerable<BitwardenFolder> serviceModels)
-        {
-            IEnumerable<BitwardenFolderEntity> dataObjects = serviceModels.Select(serviceModel => serviceModel.ToDataObject());
-
-            return dataObjects;
-        }
+            => serviceModels.Select(serviceModel => serviceModel.ToDataObject());
     }
 }

@@ -8,36 +8,22 @@ namespace BitwardenVaultManager.Service.Mapping
 {
     static class BitwardenFieldMappings
     {
-        internal static BitwardenField ToServiceModel(this BitwardenFieldEntity dataObject)
+        internal static BitwardenField ToServiceModel(this BitwardenFieldEntity dataObject) => new()
         {
-            BitwardenField serviceModel = new BitwardenField();
-            serviceModel.Name = dataObject.Name;
-            serviceModel.Value = dataObject.Value;
+            Name = dataObject.Name,
+            Value = dataObject.Value
+        };
 
-            return serviceModel;
-        }
-
-        internal static BitwardenFieldEntity ToDataObject(this BitwardenField serviceModel)
+        internal static BitwardenFieldEntity ToDataObject(this BitwardenField serviceModel) => new()
         {
-            BitwardenFieldEntity dataObject = new BitwardenFieldEntity();
-            dataObject.Name = serviceModel.Name;
-            dataObject.Value = serviceModel.Value;
-
-            return dataObject;
-        }
+            Name = serviceModel.Name,
+            Value = serviceModel.Value
+        };
 
         internal static IEnumerable<BitwardenField> ToServiceModels(this IEnumerable<BitwardenFieldEntity> dataObjects)
-        {
-            IEnumerable<BitwardenField> serviceModels = dataObjects.Select(dataObject => dataObject.ToServiceModel());
-
-            return serviceModels;
-        }
+            => dataObjects.Select(dataObject => dataObject.ToServiceModel());
 
         internal static IEnumerable<BitwardenFieldEntity> ToDataObjects(this IEnumerable<BitwardenField> serviceModels)
-        {
-            IEnumerable<BitwardenFieldEntity> dataObjects = serviceModels.Select(serviceModel => serviceModel.ToDataObject());
-
-            return dataObjects;
-        }
+            => serviceModels.Select(serviceModel => serviceModel.ToDataObject());
     }
 }

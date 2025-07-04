@@ -8,39 +8,24 @@ using BitwardenVaultManager.Service.Models;
 
 namespace BitwardenVaultManager.Service
 {
-    public class VaultManager : IVaultManager
+    public class VaultManager(
+        IBitwardenVaultFileHandler vaultFileHandler,
+        IPasswordChecker passwordChecker) : IVaultManager
     {
         static string WeakPasswordFieldName => "Weak Password";
 
-        readonly IBitwardenVaultFileHandler vaultFileHandler;
-        readonly IPasswordChecker passwordChecker;
-
         BitwardenVault vault;
 
-        public VaultManager()
-            : this(
-                new BitwardenVaultFileHandler(),
-                new PasswordChecker())
-        {
-
-        }
-
-        public VaultManager(
-            IBitwardenVaultFileHandler vaultFileHandler,
-            IPasswordChecker passwordChecker)
-        {
-            this.vaultFileHandler = vaultFileHandler;
-            this.passwordChecker = passwordChecker;
-        }
+        public VaultManager() : this(
+            new BitwardenVaultFileHandler(),
+            new PasswordChecker()) { }
 
         public void Load(string filePath)
-        {
-            vault = vaultFileHandler.Load(filePath).ToServiceModel();
-        }
+            => vaultFileHandler.Load(filePath).ToServiceModel();
 
         public IEnumerable<string> GetMisconfiguredItems()
         {
-            IList<string> errors = new List<string>();
+            IList<string> errors = [];
 
             foreach (BitwardenItem item in vault.Items.Where(x => x.Type == BitwardenItemType.Login))
             {
@@ -72,7 +57,7 @@ namespace BitwardenVaultManager.Service
             => vault.Items
                 .Where(item =>
                     item.Type == BitwardenItemType.Login &&
-                    !(string.IsNullOrWhiteSpace(item.Login.Password)))
+                    !string.IsNullOrWhiteSpace(item.Login.Password))
                 .Select(item => item.Login.Password)
                 .Distinct();
 
@@ -86,35 +71,35 @@ namespace BitwardenVaultManager.Service
             => vault.Items
                 .Where(item =>
                     item.Type == BitwardenItemType.Login &&
-                    !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
+                    !string.IsNullOrWhiteSpace(item.Login.Password) &&
                     item.Login.Password.Equals(password, StringComparison.InvariantCulture));
 
         public IEnumerable<BitwardenItem> GetItemsByPasswordContaining(string text)
             => vault.Items
                 .Where(item =>
                     item.Type == BitwardenItemType.Login &&
-                    !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
+                    !string.IsNullOrWhiteSpace(item.Login.Password) &&
                     item.Login.Password.Contains(text, StringComparison.InvariantCulture));
 
         public IEnumerable<BitwardenItem> GetItemsByPasswordLength(int length)
             => vault.Items
                 .Where(item =>
                     item.Type == BitwardenItemType.Login &&
-                    !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
+                    !string.IsNullOrWhiteSpace(item.Login.Password) &&
                     item.Login.Password.Length.Equals(length));
 
         public IEnumerable<BitwardenItem> GetItemsByUsername(string username)
             => vault.Items
                 .Where(item =>
                     item.Type == BitwardenItemType.Login &&
-                    !(string.IsNullOrWhiteSpace(item.Username)) &&
+                    !string.IsNullOrWhiteSpace(item.Username) &&
                     item.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase));
 
         public IEnumerable<BitwardenItem> GetItemsWithWeakPasswords()
             => vault.Items
                 .Where(item =>
                     item.Type == BitwardenItemType.Login &&
-                    !(string.IsNullOrWhiteSpace(item.Login.Password)) &&
+                    !string.IsNullOrWhiteSpace(item.Login.Password) &&
                     (
                         item.Fields is null ||
                         item.Fields.All(x => !x.Name.Equals(WeakPasswordFieldName)) ||
@@ -133,11 +118,11 @@ namespace BitwardenVaultManager.Service
             => vault.Items
                 .Where(item =>
                     item.Type == BitwardenItemType.Login &&
-                    !(string.IsNullOrWhiteSpace(item.Login.TOTP)))
+                    !string.IsNullOrWhiteSpace(item.Login.TOTP))
                 .OrderBy(item => item.IsFavourite)
                 .ThenBy(item => item.Name)
                 .ThenBy(item => item.Username)
-                .Select(item => GetTotpUrl(item));
+                .Select(GetTotpUrl);
 
 
         string GetTotpUrl(BitwardenItem item)

@@ -8,8 +8,7 @@ namespace BitwardenVaultManager.Service.Models
     {
         static string UsernameFieldName => "Username";
 
-        static string[] EmailAddressFieldNames => new string[]
-        { "Email Address", "Email", "email", "input-login", "login_email", "sign_in_email" };
+        static string[] EmailAddressFieldNames => ["Email Address", "Email", "email", "input-login", "login_email", "sign_in_email"];
 
         public Guid Id { get; set; }
 
@@ -38,15 +37,19 @@ namespace BitwardenVaultManager.Service.Models
                         BitwardenField field = Fields.FirstOrDefault(f => f.Name.Equals(fieldName));
 
                         if (field is not null &&
-                            field.Value.Contains("@"))
+                            field.Value.Contains('@'))
                         {
                             return field.Value;
                         }
                     }
                 }
 
-                if (Login is not null &&
-                    !string.IsNullOrWhiteSpace(Login.Username) &&
+                if (Login is null)
+                {
+                    return null;
+                }
+
+                if (!string.IsNullOrWhiteSpace(Login.Username) &&
                     Login.Username.Contains('@'))
                 {
                     return Login.Username;
