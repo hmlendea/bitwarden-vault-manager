@@ -21,7 +21,7 @@ namespace BitwardenVaultManager.Service
             new PasswordChecker()) { }
 
         public void Load(string filePath)
-            => vaultFileHandler.Load(filePath).ToServiceModel();
+            => vault = vaultFileHandler.Load(filePath).ToServiceModel();
 
         public IEnumerable<string> GetMisconfiguredItems()
         {
