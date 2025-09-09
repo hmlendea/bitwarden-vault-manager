@@ -11,7 +11,7 @@ namespace BitwardenVaultManager.Service.Models
 
         static string[] EmailAddressFieldNames => ["Email Address", "Email", "email", "input-login", "login_email", "sign_in_email"];
 
-        static string[] PhoneNumberFieldNames => ["Phone Number", "phone", "phone_number"];
+        static string[] PhoneNumberFieldNames => ["Phone Number", "phone", "phoneNumber", "phone_number", "billing_phone", "CellPhone", "form_creatang_telefon"];
 
         public Guid Id { get; set; }
 
