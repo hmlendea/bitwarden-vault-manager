@@ -21,6 +21,8 @@ namespace BitwardenVaultManager.Service
 
         IEnumerable<BitwardenItem> GetItemsByEmailAddress(string emailAddress);
 
+        IEnumerable<BitwardenItem> GetItemsByPhoneNumber(string phoneNumber);
+
         IEnumerable<BitwardenItem> GetItemsByPassword(string password);
 
         IEnumerable<BitwardenItem> GetItemsByPasswordContaining(string text);
