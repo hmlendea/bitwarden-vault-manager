@@ -27,6 +27,7 @@ namespace BitwardenVaultManager.Menus
 
             AddCommand("get-email-addresses", "Gets all email addresses", GetEmailAddresses);
             AddCommand("get-email-address-usages", "Gets all the accounts that are associated with a given email address", GetEmailAddressUsages);
+            AddCommand("get-phone-numbers", "Gets all phone numbers", GetPhoneNumbers);
             AddCommand("get-phone-number-usages", "Gets all the accounts that are associated with a given phone number", GetPhoneNumberUsages);
             AddCommand("get-items-by-password-length", "Gets the list of items that use passwords of the given length", GetItemsByPasswordLength);
             AddCommand("get-items-without-2fa", "Gets the list of items without 2-factor authentication", GetItemsWithout2FA);
@@ -82,6 +83,30 @@ namespace BitwardenVaultManager.Menus
 
             NuciConsole.WriteLine($"The '{emailAddress}' email address is associated with {results.Count} items:");
             NuciConsole.WriteLines(results);
+        }
+
+        void GetPhoneNumbers()
+        {
+            IEnumerable<string> phoneNumbers = vaultManager.GetPhoneNumbers();
+            IDictionary<string, int> phoneNumberUsages = phoneNumbers.ToDictionary(x => x, x => 0);
+
+            if (!phoneNumbers.Any())
+            {
+                NuciConsole.WriteLine("There are no phone numbers associated with any item!");
+                return;
+            }
+
+            NuciConsole.WriteLine($"There are {phoneNumberUsages.Count} phone numbers:");
+
+            foreach (string phoneNumber in phoneNumbers)
+            {
+                phoneNumberUsages[phoneNumber] = vaultManager.GetItemsByPhoneNumber(phoneNumber).Count();
+            }
+
+            foreach (string phoneNumber in phoneNumberUsages.Keys.OrderByDescending(x => phoneNumberUsages[x]).ThenBy(x => x))
+            {
+                NuciConsole.WriteLine($"{phoneNumber} ({phoneNumberUsages[phoneNumber]} accounts)");
+            }
         }
 
         void GetPhoneNumberUsages()

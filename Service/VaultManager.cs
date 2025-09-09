@@ -54,6 +54,12 @@ namespace BitwardenVaultManager.Service
                 .Select(item => item.EmailAddress.ToLowerInvariant())
                 .Distinct();
 
+        public IEnumerable<string> GetPhoneNumbers()
+            => vault.Items
+                .Where(item => !string.IsNullOrWhiteSpace(item.PhoneNumber))
+                .Select(item => PhoneNumberHelper.Normalise(item.PhoneNumber))
+                .Distinct();
+
         public IEnumerable<string> GetPasswords()
             => vault.Items
                 .Where(item =>

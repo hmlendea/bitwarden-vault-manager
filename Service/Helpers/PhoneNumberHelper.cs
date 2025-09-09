@@ -7,7 +7,8 @@ namespace BitwardenVaultManager.Service.Helpers
     {
         public static bool IsValid(string value)
             => !string.IsNullOrWhiteSpace(value) &&
-               value.All(c => char.IsDigit(c) || c == '+' || c == '-' || c == ' ' || c == '(' || c == ')');
+               value.All(c => char.IsDigit(c) || c == '+' || c == '-' || c == ' ' || c == '(' || c == ')') &&
+               value.Length >= 9;
 
         public static string Normalise(string phoneNumber)
         {
