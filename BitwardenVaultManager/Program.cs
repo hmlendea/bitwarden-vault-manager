@@ -7,8 +7,10 @@ using BitwardenVaultManager.Menus;
 
 namespace BitwardenVaultManager
 {
-    class Program
+    internal static class Program
     {
+        internal static Action StartMenuAction { get; set; } = () => MenuManager.Instance.Start<MainMenu>();
+
         public static string VaultFilePath { get; private set; }
 
         /// <summary>
@@ -22,7 +24,7 @@ namespace BitwardenVaultManager
             VaultFilePath = string.Concat(args);
 
             MenuManager.Instance.AreStatisticsEnabled = true;
-            MenuManager.Instance.Start<MainMenu>();
+            StartMenuAction();
         }
     }
 }
