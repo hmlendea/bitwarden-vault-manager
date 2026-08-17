@@ -40,6 +40,7 @@ namespace BitwardenVaultManager.Service.Models
                         BitwardenField field = Fields.FirstOrDefault(f => f.Name.Equals(fieldName));
 
                         if (field is not null &&
+                            !string.IsNullOrWhiteSpace(field.Value) &&
                             field.Value.Contains('@'))
                         {
                             return field.Value;
