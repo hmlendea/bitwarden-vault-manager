@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using BitwardenVaultManager.DataAccess;
+using BitwardenVaultManager.Service.Helpers;
 using BitwardenVaultManager.Service.Mapping;
 using BitwardenVaultManager.Service.Models;
 
@@ -53,6 +54,12 @@ namespace BitwardenVaultManager.Service
                 .Select(item => item.EmailAddress.ToLowerInvariant())
                 .Distinct();
 
+        public IEnumerable<string> GetPhoneNumbers()
+            => vault.Items
+                .Where(item => !string.IsNullOrWhiteSpace(item.PhoneNumber))
+                .Select(item => PhoneNumberHelper.Normalise(item.PhoneNumber))
+                .Distinct();
+
         public IEnumerable<string> GetPasswords()
             => vault.Items
                 .Where(item =>
@@ -66,6 +73,12 @@ namespace BitwardenVaultManager.Service
                 .Where(item =>
                     !string.IsNullOrWhiteSpace(item.EmailAddress) &&
                     item.EmailAddress.Equals(emailAddress, StringComparison.InvariantCultureIgnoreCase));
+
+        public IEnumerable<BitwardenItem> GetItemsByPhoneNumber(string phoneNumber)
+            => vault.Items
+                .Where(item =>
+                    !string.IsNullOrWhiteSpace(item.PhoneNumber) &&
+                    item.PhoneNumber.Equals(PhoneNumberHelper.Normalise(phoneNumber), StringComparison.InvariantCultureIgnoreCase));
 
         public IEnumerable<BitwardenItem> GetItemsByPassword(string password)
             => vault.Items

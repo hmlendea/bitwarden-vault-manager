@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BitwardenVaultManager.Service.Helpers;
 
 namespace BitwardenVaultManager.Service.Models
 {
@@ -9,6 +10,8 @@ namespace BitwardenVaultManager.Service.Models
         static string UsernameFieldName => "Username";
 
         static string[] EmailAddressFieldNames => ["Email Address", "Email", "email", "input-login", "login_email", "sign_in_email"];
+
+        static string[] PhoneNumberFieldNames => ["Phone Number", "phone", "phoneNumber", "phone_number", "billing_phone", "CellPhone", "form_creatang_telefon"];
 
         public Guid Id { get; set; }
 
@@ -37,6 +40,7 @@ namespace BitwardenVaultManager.Service.Models
                         BitwardenField field = Fields.FirstOrDefault(f => f.Name.Equals(fieldName));
 
                         if (field is not null &&
+                            !string.IsNullOrWhiteSpace(field.Value) &&
                             field.Value.Contains('@'))
                         {
                             return field.Value;
@@ -53,6 +57,37 @@ namespace BitwardenVaultManager.Service.Models
                     Login.Username.Contains('@'))
                 {
                     return Login.Username;
+                }
+
+                return null;
+            }
+        }
+
+        public string PhoneNumber
+        {
+            get
+            {
+                if (Fields is not null)
+                {
+                    foreach (string fieldName in PhoneNumberFieldNames)
+                    {
+                        BitwardenField field = Fields.FirstOrDefault(f => f.Name.Equals(fieldName));
+
+                        if (PhoneNumberHelper.IsValid(field?.Value))
+                        {
+                            return PhoneNumberHelper.Normalise(field.Value);
+                        }
+                    }
+                }
+
+                if (Login is null)
+                {
+                    return null;
+                }
+
+                if (PhoneNumberHelper.IsValid(Login.Username))
+                {
+                    return PhoneNumberHelper.Normalise(Login.Username);
                 }
 
                 return null;
