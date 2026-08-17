@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,18 +14,60 @@ namespace BitwardenVaultManager.Menus
     /// <summary>
     /// Main menu.
     /// </summary>
-    public class MainMenu : Menu
+    public sealed class MainMenu : Menu
     {
-        readonly IVaultManager vaultManager;
+        private static Func<string, string> DefaultReadLine => NuciConsole.ReadLine;
+
+        private static Action<string> DefaultWriteLine => NuciConsole.WriteLine;
+
+        private static Action<string, NuciConsoleColour> DefaultWriteColouredLine => NuciConsole.WriteLine;
+
+        private static Action<IEnumerable<string>> DefaultWriteLines => NuciConsole.WriteLines;
+
+        private static Action<IEnumerable<string>, NuciConsoleColour> DefaultWriteColouredLines => NuciConsole.WriteLines;
+
+        private readonly IVaultManager vaultManager;
+        private Func<string, string> readLine;
+        private Action<string> writeLine;
+        private Action<string, NuciConsoleColour> writeColouredLine;
+        private Action<IEnumerable<string>> writeLines;
+        private Action<IEnumerable<string>, NuciConsoleColour> writeColouredLines;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainMenu"/> class.
         /// </summary>
-        public MainMenu() : base("Bitwarden Vault Manager")
+        public MainMenu() : this(new VaultManager(), Program.VaultFilePath)
         {
-            vaultManager = new VaultManager();
-            vaultManager.Load(Program.VaultFilePath);
+        }
 
+        public MainMenu(IVaultManager vaultManager) : base("Bitwarden Vault Manager")
+        {
+            this.vaultManager = vaultManager;
+            InitialiseConsoleActions();
+
+            RegisterCommands();
+        }
+
+        public MainMenu(IVaultManager vaultManager, string vaultFilePath) : base("Bitwarden Vault Manager")
+        {
+            this.vaultManager = vaultManager;
+            InitialiseConsoleActions();
+            this.vaultManager.Load(vaultFilePath);
+
+            RegisterCommands();
+        }
+
+        private void InitialiseConsoleActions()
+        {
+            readLine = DefaultReadLine;
+            writeLine = DefaultWriteLine;
+            writeColouredLine = DefaultWriteColouredLine;
+            writeLines = DefaultWriteLines;
+            writeColouredLines = DefaultWriteColouredLines;
+        }
+
+        private void RegisterCommands()
+        {
             AddCommand("get-email-addresses", "Gets all email addresses", GetEmailAddresses);
             AddCommand("get-email-address-usages", "Gets all the accounts that are associated with a given email address", GetEmailAddressUsages);
             AddCommand("get-phone-numbers", "Gets all phone numbers", GetPhoneNumbers);
@@ -49,11 +92,11 @@ namespace BitwardenVaultManager.Menus
 
             if (!emailAddresses.Any())
             {
-                NuciConsole.WriteLine("There are no email addresses associated with any item!");
+                writeLine("There are no email addresses associated with any item!");
                 return;
             }
 
-            NuciConsole.WriteLine($"There are {emailAddressUsages.Count} email addresses:");
+            writeLine($"There are {emailAddressUsages.Count} email addresses:");
 
             foreach (string emailAddress in emailAddresses)
             {
@@ -62,13 +105,13 @@ namespace BitwardenVaultManager.Menus
 
             foreach (string emailAddress in emailAddressUsages.Keys.OrderByDescending(x => emailAddressUsages[x]).ThenBy(x => x))
             {
-                NuciConsole.WriteLine($"{emailAddress} ({emailAddressUsages[emailAddress]} accounts)");
+                writeLine($"{emailAddress} ({emailAddressUsages[emailAddress]} accounts)");
             }
         }
 
         void GetEmailAddressUsages()
         {
-            string emailAddress = NuciConsole.ReadLine("Email Address: ");
+            string emailAddress = readLine("Email Address: ");
             IEnumerable<BitwardenItem> items = vaultManager.GetItemsByEmailAddress(emailAddress);
             IList<string> results = items
                 .Select(item => $" - {GetItemDescription(item)}")
@@ -77,12 +120,12 @@ namespace BitwardenVaultManager.Menus
 
             if (!results.Any())
             {
-                NuciConsole.WriteLine("There are no logins associated with the provided email address!");
+                writeLine("There are no logins associated with the provided email address!");
                 return;
             }
 
-            NuciConsole.WriteLine($"The '{emailAddress}' email address is associated with {results.Count} items:");
-            NuciConsole.WriteLines(results);
+            writeLine($"The '{emailAddress}' email address is associated with {results.Count} items:");
+            writeLines(results);
         }
 
         void GetPhoneNumbers()
@@ -92,11 +135,11 @@ namespace BitwardenVaultManager.Menus
 
             if (!phoneNumbers.Any())
             {
-                NuciConsole.WriteLine("There are no phone numbers associated with any item!");
+                writeLine("There are no phone numbers associated with any item!");
                 return;
             }
 
-            NuciConsole.WriteLine($"There are {phoneNumberUsages.Count} phone numbers:");
+            writeLine($"There are {phoneNumberUsages.Count} phone numbers:");
 
             foreach (string phoneNumber in phoneNumbers)
             {
@@ -105,13 +148,13 @@ namespace BitwardenVaultManager.Menus
 
             foreach (string phoneNumber in phoneNumberUsages.Keys.OrderByDescending(x => phoneNumberUsages[x]).ThenBy(x => x))
             {
-                NuciConsole.WriteLine($"{phoneNumber} ({phoneNumberUsages[phoneNumber]} accounts)");
+                writeLine($"{phoneNumber} ({phoneNumberUsages[phoneNumber]} accounts)");
             }
         }
 
         void GetPhoneNumberUsages()
         {
-            string phoneNumber = PhoneNumberHelper.Normalise(NuciConsole.ReadLine("Phone Number: "));
+            string phoneNumber = PhoneNumberHelper.Normalise(readLine("Phone Number: "));
             IEnumerable<BitwardenItem> items = vaultManager.GetItemsByPhoneNumber(phoneNumber);
             List<string> results = [.. items
                 .Select(item => $" - {GetItemDescription(item)}")
@@ -119,17 +162,17 @@ namespace BitwardenVaultManager.Menus
 
             if (results.Count.Equals(0))
             {
-                NuciConsole.WriteLine("There are no logins associated with the provided phone number!");
+                writeLine("There are no logins associated with the provided phone number!");
                 return;
             }
 
-            NuciConsole.WriteLine($"The '{phoneNumber}' phone number is associated with {results.Count} items:");
-            NuciConsole.WriteLines(results);
+            writeLine($"The '{phoneNumber}' phone number is associated with {results.Count} items:");
+            writeLines(results);
         }
 
         void GetItemsByPasswordLength()
         {
-            int length = int.Parse(NuciConsole.ReadLine("Password length: "));
+            int length = int.Parse(readLine("Password length: "));
             IEnumerable<string> results = vaultManager
                 .GetItemsByPasswordLength(length)
                 .Select(item => $" - {GetItemDescription(item)}")
@@ -137,12 +180,12 @@ namespace BitwardenVaultManager.Menus
 
             if (!results.Any())
             {
-                NuciConsole.WriteLine($"There are no items that use {length} character long passwords!");
+                writeLine($"There are no items that use {length} character long passwords!");
                 return;
             }
 
-            NuciConsole.WriteLine($"There are '{results.Count()}' items that use {length} character long passwords:");
-            NuciConsole.WriteLines(results);
+            writeLine($"There are '{results.Count()}' items that use {length} character long passwords:");
+            writeLines(results);
         }
 
         void GetItemsWithout2FA()
@@ -154,12 +197,12 @@ namespace BitwardenVaultManager.Menus
 
             if (!results.Any())
             {
-                NuciConsole.WriteLine("All items are using 2-factor authentication, good job!", NuciConsoleColour.Green);
+                writeColouredLine("All items are using 2-factor authentication, good job!", NuciConsoleColour.Green);
                 return;
             }
 
-            NuciConsole.WriteLine($"There are '{results.Count()}' misconfigured items:");
-            NuciConsole.WriteLines(results);
+            writeLine($"There are '{results.Count()}' misconfigured items:");
+            writeLines(results);
         }
 
         void GetMisconfiguredItems()
@@ -168,12 +211,12 @@ namespace BitwardenVaultManager.Menus
 
             if (!errors.Any())
             {
-                NuciConsole.WriteLine("All items are properly configured, good job!", NuciConsoleColour.Green);
+                writeColouredLine("All items are properly configured, good job!", NuciConsoleColour.Green);
                 return;
             }
 
-            NuciConsole.WriteLine($"There are '{errors.Count()}' misconfigured items:");
-            NuciConsole.WriteLines(errors, NuciConsoleColour.Red);
+            writeLine($"There are '{errors.Count()}' misconfigured items:");
+            writeColouredLines(errors, NuciConsoleColour.Red);
         }
 
         void GetPasswordLengths()
@@ -186,16 +229,16 @@ namespace BitwardenVaultManager.Menus
 
             if (!results.Any())
             {
-                NuciConsole.WriteLine("There are no logins!");
+                writeLine("There are no logins!");
                 return;
             }
 
-            NuciConsole.WriteLines(results.Select(x => $"{x.Key} ({x.Value} logins)"));
+            writeLines(results.Select(x => $"{x.Key} ({x.Value} logins)"));
         }
 
         void GetPasswordUsages()
         {
-            string password = NuciConsole.ReadLine("Password: ");
+            string password = readLine("Password: ");
             IEnumerable<BitwardenItem> items = vaultManager.GetItemsByPassword(password);
             IList<string> results = items
                 .Select(item => $" - {GetItemDescription(item)}")
@@ -204,17 +247,17 @@ namespace BitwardenVaultManager.Menus
 
             if (!results.Any())
             {
-                NuciConsole.WriteLine("There are no logins using the provided password!");
+                writeLine("There are no logins using the provided password!");
                 return;
             }
 
-            NuciConsole.WriteLine($"The '{password}' password is associated with {results.Count} items:");
-            NuciConsole.WriteLines(results);
+            writeLine($"The '{password}' password is associated with {results.Count} items:");
+            writeLines(results);
         }
 
         void GetPasswordsContaining()
         {
-            string text = NuciConsole.ReadLine("Text: ");
+            string text = readLine("Text: ");
             IEnumerable<BitwardenItem> items = vaultManager.GetItemsByPasswordContaining(text);
             IList<string> results = items
                 .Select(item => $" - {GetItemDescription(item)}")
@@ -223,12 +266,12 @@ namespace BitwardenVaultManager.Menus
 
             if (!results.Any())
             {
-                NuciConsole.WriteLine("There are no logins that use passwords containing the provided text!");
+                writeLine("There are no logins that use passwords containing the provided text!");
                 return;
             }
 
-            NuciConsole.WriteLine($"The text '{text}' is used in {results.Count} passwords:");
-            NuciConsole.WriteLines(results);
+            writeLine($"The text '{text}' is used in {results.Count} passwords:");
+            writeLines(results);
         }
 
         void GetReusedPasswords()
@@ -244,15 +287,15 @@ namespace BitwardenVaultManager.Menus
                     continue;
                 }
 
-                NuciConsole.WriteLine("The password '" + password + "' is reused accross " + items.Count + " accounts:", NuciConsoleColour.Red);
-                NuciConsole.WriteLines(items.Select(GetItemDescription));
+                writeColouredLine("The password '" + password + "' is reused accross " + items.Count + " accounts:", NuciConsoleColour.Red);
+                writeLines(items.Select(GetItemDescription));
             }
         }
 
         void GetTotpUrls()
         {
             IEnumerable<string> urls = vaultManager.GetTotpUrls();
-            NuciConsole.WriteLines(urls);
+            writeLines(urls);
         }
 
         void GetUsernames()
@@ -262,11 +305,11 @@ namespace BitwardenVaultManager.Menus
 
             if (!usernames.Any())
             {
-                NuciConsole.WriteLine("There are no usernames associated with any item!");
+                writeLine("There are no usernames associated with any item!");
                 return;
             }
 
-            NuciConsole.WriteLine($"There are {usernameUsageCounts.Count} usernames:");
+            writeLine($"There are {usernameUsageCounts.Count} usernames:");
 
             foreach (string username in usernames)
             {
@@ -275,13 +318,13 @@ namespace BitwardenVaultManager.Menus
 
             foreach (string username in usernameUsageCounts.Keys.OrderByDescending(x => usernameUsageCounts[x]).ThenBy(x => x))
             {
-                NuciConsole.WriteLine($"{username} ({usernameUsageCounts[username]} accounts)");
+                writeLine($"{username} ({usernameUsageCounts[username]} accounts)");
             }
         }
 
         void GetUsernameUsages()
         {
-            string username = NuciConsole.ReadLine("Username: ");
+            string username = readLine("Username: ");
             IEnumerable<BitwardenItem> items = vaultManager.GetItemsByUsername(username);
             IList<string> results = items
                 .Select(item => $" - {GetItemDescription(item)}")
@@ -290,12 +333,12 @@ namespace BitwardenVaultManager.Menus
 
             if (!results.Any())
             {
-                NuciConsole.WriteLine("There are no logins using the provided username!");
+                writeLine("There are no logins using the provided username!");
                 return;
             }
 
-            NuciConsole.WriteLine($"The '{username}' username is associated with {results.Count} items:");
-            NuciConsole.WriteLines(results);
+            writeLine($"The '{username}' username is associated with {results.Count} items:");
+            writeLines(results);
         }
 
         void GetWeakPasswords()
@@ -305,7 +348,7 @@ namespace BitwardenVaultManager.Menus
                 .Select(GetItemDescription)
                 .OrderBy(x => x);
 
-            NuciConsole.WriteLines(lines, NuciConsoleColour.Red);
+            writeColouredLines(lines, NuciConsoleColour.Red);
         }
 
         string GetItemDescription(BitwardenItem item)
