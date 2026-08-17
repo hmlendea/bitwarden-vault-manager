@@ -37,13 +37,13 @@ namespace BitwardenVaultManager.Service.Models
                 {
                     foreach (string fieldName in EmailAddressFieldNames)
                     {
-                        BitwardenField field = Fields.FirstOrDefault(f => f.Name.Equals(fieldName));
+                        BitwardenField matchedField = Fields.FirstOrDefault(f => f.Name.Equals(fieldName));
 
-                        if (field is not null &&
-                            !string.IsNullOrWhiteSpace(field.Value) &&
-                            field.Value.Contains('@'))
+                        if (matchedField is not null &&
+                            !string.IsNullOrWhiteSpace(matchedField.Value) &&
+                            matchedField.Value.Contains('@'))
                         {
-                            return field.Value;
+                            return matchedField.Value;
                         }
                     }
                 }
@@ -71,11 +71,11 @@ namespace BitwardenVaultManager.Service.Models
                 {
                     foreach (string fieldName in PhoneNumberFieldNames)
                     {
-                        BitwardenField field = Fields.FirstOrDefault(f => f.Name.Equals(fieldName));
+                        BitwardenField matchedField = Fields.FirstOrDefault(f => f.Name.Equals(fieldName));
 
-                        if (PhoneNumberHelper.IsValid(field?.Value))
+                        if (PhoneNumberHelper.IsValid(matchedField?.Value))
                         {
-                            return PhoneNumberHelper.Normalise(field.Value);
+                            return PhoneNumberHelper.Normalise(matchedField.Value);
                         }
                     }
                 }
@@ -99,9 +99,9 @@ namespace BitwardenVaultManager.Service.Models
             get
             {
                 if (Fields is not null &&
-                    Fields.Any(field => UsernameFieldName.Equals(field.Name)))
+                    Fields.Any(itemField => UsernameFieldName.Equals(itemField.Name)))
                 {
-                    return Fields.First(field => UsernameFieldName.Equals(field.Name)).Value;
+                    return Fields.First(itemField => UsernameFieldName.Equals(itemField.Name)).Value;
                 }
 
                 if (Login is not null &&
